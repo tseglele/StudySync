@@ -1,4 +1,4 @@
-# 🚀 StudySync Lite
+# 🚀 StudySync
 
 Application web de gestion de travail étudiant permettant de :
 
@@ -31,7 +31,7 @@ Application web de gestion de travail étudiant permettant de :
 
 # 📁 Structure du Projet
 
-````plaintext
+```plaintext
 project/
 │
 ├── frontend/
@@ -51,6 +51,7 @@ project/
 │
 ├── database/
 
+```
 
 # 🧠 Convention de nommage
 
@@ -65,10 +66,10 @@ Les variables doivent être :
 ### ✅ Bon exemple
 
 ```js
-const listeTaches = []
-const utilisateurConnecte = {}
-const dateLimite = new Date()
-````
+const listeTaches = [];
+const utilisateurConnecte = {};
+const dateLimite = new Date();
+```
 
 ### ❌ Mauvais exemple
 
