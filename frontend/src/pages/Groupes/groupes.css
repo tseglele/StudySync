@@ -1,0 +1,141 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    background-color: #0f0f14;
+    color: white;
+    font-family: sans-serif;
+  }
+  
+  .page {
+    padding: 32px;
+  }
+  
+  .page-title {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+  
+  .page-sub {
+    color: #7a7a9a;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  
+  .page-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  
+  .page-meta span {
+    color: #7a7a9a;
+    font-size: 14px;
+  }
+  
+  .btn-rejoindre {
+    background-color: #7c5cfc;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .grille {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  
+  .carte {
+    background-color: #16161e;
+    border: 1px solid #2a2a3a;
+    border-radius: 12px;
+    padding: 20px;
+  }
+  
+  .carte-nom {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  
+  .carte-info {
+    color: #7a7a9a;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+  
+  .membres {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+    border: 2px solid #16161e;
+    margin-left: -8px;
+  }
+  
+  .membres .avatar:first-child {
+    margin-left: 0;
+  }
+  
+  .membres-count {
+    color: #7a7a9a;
+    font-size: 13px;
+    margin-left: 10px;
+  }
+  
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  
+  .stat-box {
+    background-color: #1e1e2a;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+  }
+  
+  .stat-box p:first-child {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2dd4a0;
+  }
+  
+  .stat-box p:last-child {
+    color: #7a7a9a;
+    font-size: 12px;
+  }
+  
+  .carte-rejoindre {
+    background-color: #16161e;
+    border: 1px dashed #2a2a3a;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #4a4a6a;
+    cursor: pointer;
+    gap: 8px;
+  }
