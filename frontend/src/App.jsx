@@ -3,11 +3,9 @@ import './App.css'
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
-import Navbar from './components/Navbar'
-import Sidebar from './components/Sidebar'
 
-import Groupes from '../pages/Groupes/groupes'
-import Projets from '../pages/Projets/projets'
+import Groupes from './pages/Groupes/groupes'
+import Projets from './pages/Projets/projets'
 
 function App() {
   return (
