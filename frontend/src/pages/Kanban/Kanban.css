@@ -1,0 +1,114 @@
+.kanban-page {
+    padding: 24px 32px;
+    min-height: 100vh;
+    background-color: #0f0f14;
+    color: white;
+    font-family: sans-serif;
+  }
+  
+  .kanban-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  
+  .btn-retour {
+    background: #1e1e2a;
+    border: 1px solid #2a2a3a;
+    color: #7a7a9a;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  
+  .btn-retour:hover {
+    color: white;
+    border-color: #7c5cfc;
+  }
+  
+  .kanban-titre {
+    font-size: 22px;
+    font-weight: 700;
+  }
+  
+  .kanban-board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  
+  .kanban-colonne {
+    background-color: #16161e;
+    border: 1px solid #2a2a3a;
+    border-radius: 12px;
+    padding: 16px;
+  }
+  
+  .colonne-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  
+  .colonne-titre {
+    font-size: 14px;
+    font-weight: 600;
+    color: #7a7a9a;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .colonne-count {
+    background: #2a2a3a;
+    color: #7a7a9a;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 99px;
+  }
+  
+  .colonne-taches {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .tache-carte {
+    background-color: #1e1e2a;
+    border: 1px solid #2a2a3a;
+    border-radius: 8px;
+    padding: 12px;
+  }
+  
+  .tache-done {
+    opacity: 0.5;
+  }
+  
+  .tache-titre {
+    font-size: 14px;
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  
+  .tache-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .tache-assignee {
+    background: #7c5cfc;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 99px;
+  }
+  
+  .tache-priorite {
+    font-size: 12px;
+    font-weight: 600;
+    color: #2dd4a0;
+  }

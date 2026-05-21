@@ -91,3 +91,47 @@
   .membres .avatar:first-child {
     margin-left: 0;
   }
+  body {
+    background-color: #0f0f14;
+    color: white;
+    font-family: sans-serif;
+    margin: 0;
+  }
+  
+  .page {
+    padding: 32px;
+  }
+  
+  .page-title {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+  
+  .page-sub {
+    color: #7a7a9a;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  
+  .page-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  
+  .page-meta span {
+    color: #7a7a9a;
+    font-size: 14px;
+  }
+  
+  .btn-rejoindre {
+    background-color: #7c5cfc;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+  }

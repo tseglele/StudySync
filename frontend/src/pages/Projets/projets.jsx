@@ -1,12 +1,13 @@
 import './projets.css'
+import { useNavigate } from 'react-router-dom'
 
 function Projets() {
-  const couleurs = ["#7c5cfc", "#2dd4a0", "#f59e4a", "#f0506e", "#4a9eff"]
+  const navigate = useNavigate()
 
   const projets = [
-    { id: 1, nom: "Système distribué", groupe: "Algo & Réseaux", description: "Implémentation d'un système distribué en Java", avancement: 75, membres: ["AM", "SL", "JD", "TR"], dateLimite: "30 mai" },
-    { id: 2, nom: "Refonte UI Dashboard", groupe: "Équipe Design UX", description: "Redesign complet du tableau de bord utilisateur", avancement: 40, membres: ["MP", "CL", "AM"], dateLimite: "15 juin" },
-    { id: 3, nom: "Modèle de prédiction", groupe: "Data Science Python", description: "Modèle ML pour prédire les résultats étudiants", avancement: 20, membres: ["AM", "TR"], dateLimite: "20 juin" },
+    { id: 1, nom: "Système distribué", groupe: "Algo & Réseaux", description: "Implémentation d'un système distribué en Java", avancement: 75, dateLimite: "30 mai" },
+    { id: 2, nom: "Refonte UI Dashboard", groupe: "Équipe Design UX", description: "Redesign complet du tableau de bord utilisateur", avancement: 40, dateLimite: "15 juin" },
+    { id: 3, nom: "Modèle de prédiction", groupe: "Data Science Python", description: "Modèle ML pour prédire les résultats étudiants", avancement: 20, dateLimite: "20 juin" },
   ]
 
   return (
@@ -21,7 +22,7 @@ function Projets() {
 
       <div className="projets-liste">
         {projets.map((projet) => (
-          <div key={projet.id} className="projet-carte">
+          <div key={projet.id} className="projet-carte" onClick={() => navigate(`/projets/${projet.id}`)} style={{cursor: 'pointer'}}>
             <div className="projet-header">
               <div>
                 <p className="projet-nom">{projet.nom}</p>
@@ -40,14 +41,6 @@ function Projets() {
               <div className="barre-fond">
                 <div className="barre-remplie" style={{width: `${projet.avancement}%`}}></div>
               </div>
-            </div>
-
-            <div className="membres">
-              {projet.membres.map((init, i) => (
-                <div key={i} className="avatar" style={{backgroundColor: couleurs[i % couleurs.length]}}>
-                  {init}
-                </div>
-              ))}
             </div>
           </div>
         ))}
