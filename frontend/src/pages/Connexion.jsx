@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import api from '../Api'
-import './connexion.css'
+import './Connexion.css'
 
 function Connexion() {
   const [email, setEmail] = useState('')

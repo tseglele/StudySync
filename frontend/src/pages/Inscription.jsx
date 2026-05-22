@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import api from '../Api.jsx'
-import './inscription.css'
+import './Inscription.css'
 
 function Inscription() {
   const [name, setName] = useState('')
