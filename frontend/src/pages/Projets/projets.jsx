@@ -1,14 +1,17 @@
-import './projets.css'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import './projets.css'
 
 function Projets() {
   const navigate = useNavigate()
+  const [projets, setProjets] = useState([])
 
-  const projets = [
-    { id: 1, nom: "Système distribué", groupe: "Algo & Réseaux", description: "Implémentation d'un système distribué en Java", avancement: 75, dateLimite: "30 mai" },
-    { id: 2, nom: "Refonte UI Dashboard", groupe: "Équipe Design UX", description: "Redesign complet du tableau de bord utilisateur", avancement: 40, dateLimite: "15 juin" },
-    { id: 3, nom: "Modèle de prédiction", groupe: "Data Science Python", description: "Modèle ML pour prédire les résultats étudiants", avancement: 20, dateLimite: "20 juin" },
-  ]
+  useEffect(() => {
+    fetch('http://localhost:3000/api/projets')
+      .then(res => res.json())
+      .then(data => setProjets(data))
+      .catch(err => console.error(err))
+  }, [])
 
   return (
     <div className="page">
@@ -26,7 +29,6 @@ function Projets() {
             <div className="projet-header">
               <div>
                 <p className="projet-nom">{projet.nom}</p>
-                <p className="projet-groupe">{projet.groupe}</p>
               </div>
               <span className="projet-date">📅 {projet.dateLimite}</span>
             </div>
