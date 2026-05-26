@@ -1,225 +1,346 @@
-import StatsCard from "../components/StatsCard"
+import { useEffect, useState } from "react"
 
 function Dashboard() {
 
-  const tasks = [
+  const savedTasks =
+    JSON.parse(localStorage.getItem("tasks")) || []
 
-    {
-      title: "Rapport UX",
-      date: "Demain - 23h59",
-      priority: "Urgent"
-    },
+  const [tasks, setTasks] = useState(savedTasks)
 
-    {
-      title: "Présentation groupe",
-      date: "Lundi prochain",
-      priority: "Moyen"
-    },
+  const [newTask, setNewTask] = useState("")
 
-    {
-      title: "Révisions React",
-      date: "Vendredi",
-      priority: "Normal"
+  const [filter, setFilter] = useState("all")
+
+  useEffect(() => {
+
+    localStorage.setItem(
+      "tasks",
+      JSON.stringify(tasks)
+    )
+
+  }, [tasks])
+
+  function addTask(){
+
+    if(newTask === "") return
+
+    const task = {
+
+      id: Date.now(),
+
+      title: newTask,
+
+      completed: false,
+
+      hour: new Date().toLocaleTimeString()
+
     }
 
-  ]
+    setTasks([...tasks, task])
 
-  function getBadgeClass(priority){
+    setNewTask("")
 
-    if(priority === "Urgent"){
-      return "red"
-    }
-
-    if(priority === "Moyen"){
-      return "orange"
-    }
-
-    return "green"
   }
+
+  function deleteTask(id){
+
+    const newTasks =
+      tasks.filter(task => task.id !== id)
+
+    setTasks(newTasks)
+
+  }
+
+  function completeTask(id){
+
+    const updatedTasks = tasks.map(task => {
+
+      if(task.id === id){
+
+        return {
+
+          ...task,
+
+          completed: !task.completed
+
+        }
+
+      }
+
+      return task
+
+    })
+
+    setTasks(updatedTasks)
+
+  }
+
+  let filteredTasks = tasks
+
+  if(filter === "active"){
+
+    filteredTasks =
+      tasks.filter(task => !task.completed)
+
+  }
+
+  if(filter === "done"){
+
+    filteredTasks =
+      tasks.filter(task => task.completed)
+
+  }
+
+  const doneTasks =
+    tasks.filter(task => task.completed).length
 
   return (
 
-    <div className="dashboard">
+    <div
+      style={{
+        background:"#0f172a",
+        minHeight:"100vh",
+        padding:"40px",
+        color:"white"
+      }}
+    >
 
-      {/* HEADER */}
+      <h1>StudySync Dashboard</h1>
 
-      <div className="dashboard-header">
+      {/* STATS */}
 
-        <div>
+      <div
+        style={{
+          display:"flex",
+          gap:"20px",
+          marginTop:"30px"
+        }}
+      >
 
-          <h1>StudySync Dashboard</h1>
+        <div
+          style={{
+            background:"#1e293b",
+            padding:"20px",
+            borderRadius:"10px",
+            width:"150px"
+          }}
+        >
 
-          <p>
-            Bienvenue Melek 👋
-          </p>
+          <h2>{tasks.length}</h2>
+
+          <p>Tâches</p>
 
         </div>
 
-        <button className="notif-btn">
-          🔔 3
+        <div
+          style={{
+            background:"#1e293b",
+            padding:"20px",
+            borderRadius:"10px",
+            width:"150px"
+          }}
+        >
+
+          <h2>{doneTasks}</h2>
+
+          <p>Terminées</p>
+
+        </div>
+
+      </div>
+
+      {/* INPUT */}
+
+      <div
+        style={{
+          display:"flex",
+          gap:"10px",
+          marginTop:"30px"
+        }}
+      >
+
+        <input
+
+          type="text"
+
+          placeholder="Ajouter une tâche"
+
+          value={newTask}
+
+          onChange={(e) => setNewTask(e.target.value)}
+
+          onKeyDown={(e) => {
+
+            if(e.key === "Enter"){
+
+              addTask()
+
+            }
+
+          }}
+
+          style={{
+            padding:"12px",
+            width:"300px",
+            borderRadius:"10px",
+            border:"none"
+          }}
+        />
+
+        <button
+
+          onClick={addTask}
+
+          style={{
+            background:"#9333ea",
+            color:"white",
+            border:"none",
+            padding:"12px 20px",
+            borderRadius:"10px",
+            cursor:"pointer"
+          }}
+        >
+
+          Ajouter
+
         </button>
 
       </div>
 
-      {/* STATS */}
+      {/* FILTERS */}
 
-      <div className="stats">
+      <div
+        style={{
+          display:"flex",
+          gap:"10px",
+          marginTop:"20px"
+        }}
+      >
 
-        <StatsCard
-          title="Tâches"
-          value="12"
-          text="+2 cette semaine"
-        />
+        <button onClick={() => setFilter("all")}>
+          Toutes
+        </button>
 
-        <StatsCard
-          title="Complétées"
-          value="34"
-          text="74% progression"
-        />
+        <button onClick={() => setFilter("active")}>
+          Actives
+        </button>
 
-        <StatsCard
-          title="Urgentes"
-          value="3"
-          text="À faire rapidement"
-        />
-
-        <StatsCard
-          title="Projets"
-          value="5"
-          text="2 actifs"
-        />
+        <button onClick={() => setFilter("done")}>
+          Terminées
+        </button>
 
       </div>
 
-      {/* GRID */}
+      {/* TASKS */}
 
-      <div className="dashboard-grid">
+      <div style={{marginTop:"30px"}}>
 
-        {/* LEFT */}
+        {
 
-        <div>
+          filteredTasks.length === 0 && (
 
-          {/* TASKS */}
+            <p>Aucune tâche</p>
 
-          <div className="tasks-section">
+          )
 
-            <h2>Tâches prioritaires</h2>
+        }
 
-            {
+        {
 
-              tasks.map((task, index)=>(
+          filteredTasks.map((task) => (
 
-                <div className="task" key={index}>
+            <div
 
-                  <div>
+              key={task.id}
 
-                    <h4>{task.title}</h4>
+              style={{
+                background:"#1e293b",
+                padding:"15px",
+                borderRadius:"10px",
+                marginBottom:"15px",
+                display:"flex",
+                justifyContent:"space-between",
+                alignItems:"center"
+              }}
+            >
 
-                    <p>{task.date}</p>
+              <div>
 
-                  </div>
+                <h3
+                  style={{
+                    textDecoration:
+                      task.completed
+                        ? "line-through"
+                        : "none"
+                  }}
+                >
 
-                  <span className={`badge ${getBadgeClass(task.priority)}`}>
+                  {task.title}
 
-                    {task.priority}
+                </h3>
 
-                  </span>
+                <p
+                  style={{
+                    color:"gray"
+                  }}
+                >
 
-                </div>
+                  {task.hour}
 
-              ))
+                </p>
 
-            }
+              </div>
 
-          </div>
+              <div
+                style={{
+                  display:"flex",
+                  gap:"10px"
+                }}
+              >
 
-          {/* PROGRESS */}
+                <button
 
-          <div className="progress-section">
+                  onClick={() => completeTask(task.id)}
 
-            <h2>Progression</h2>
+                  style={{
+                    background:"#22c55e",
+                    color:"white",
+                    border:"none",
+                    padding:"10px",
+                    borderRadius:"10px",
+                    cursor:"pointer"
+                  }}
+                >
 
-            <p>34 tâches sur 46 terminées</p>
+                  ✅
 
-            <div className="progress-bar">
+                </button>
 
-              <div className="progress-fill"></div>
+                <button
+
+                  onClick={() => deleteTask(task.id)}
+
+                  style={{
+                    background:"#ef4444",
+                    color:"white",
+                    border:"none",
+                    padding:"10px",
+                    borderRadius:"10px",
+                    cursor:"pointer"
+                  }}
+                >
+
+                  ❌
+
+                </button>
+
+              </div>
 
             </div>
 
-          </div>
+          ))
 
-        </div>
-
-        {/* RIGHT */}
-
-        <div>
-
-          {/* CALENDAR */}
-
-          <div className="calendar">
-
-            <h2>Mai 2026</h2>
-
-            <div className="calendar-grid">
-
-              <div>Lu</div>
-              <div>Ma</div>
-              <div>Me</div>
-              <div>Je</div>
-              <div>Ve</div>
-              <div>Sa</div>
-              <div>Di</div>
-
-              <div>1</div>
-              <div>2</div>
-              <div>3</div>
-              <div>4</div>
-              <div>5</div>
-              <div>6</div>
-              <div>7</div>
-
-              <div>8</div>
-              <div>9</div>
-              <div className="today">10</div>
-              <div>11</div>
-              <div>12</div>
-              <div>13</div>
-              <div>14</div>
-
-              <div>15</div>
-              <div>16</div>
-              <div>17</div>
-              <div>18</div>
-              <div>19</div>
-              <div>20</div>
-              <div>21</div>
-
-            </div>
-
-          </div>
-
-          {/* ACTIVITY */}
-
-          <div className="activity">
-
-            <h2>Activité récente</h2>
-
-            <div className="activity-item">
-              ✅ Tâche React terminée
-            </div>
-
-            <div className="activity-item">
-              📁 Nouveau projet ajouté
-            </div>
-
-            <div className="activity-item">
-              🔥 Deadline approche
-            </div>
-
-          </div>
-
-        </div>
+        }
 
       </div>
 

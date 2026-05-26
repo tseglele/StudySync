@@ -1,42 +1,83 @@
-import { Routes, Route } from "react-router-dom"
-
-import Sidebar from "./components/Sidebar"
-import Navbar from "./components/Navbar"
+import { useState } from "react"
 
 import Dashboard from "./pages/Dashboard"
-import Planner from "./pages/Planner"
 import Projects from "./pages/Projects"
+import Planner from "./pages/Planner"
 import Groups from "./pages/Groups"
 
-function App() {
+function App(){
+
+  const [page, setPage] = useState("dashboard")
 
   return (
 
-    <div className="layout">
+    <div
+      style={{
+        background:"#020617",
+        minHeight:"100vh",
+        color:"white"
+      }}
+    >
 
-      <Sidebar />
+      {/* NAVBAR */}
 
-      <div className="content">
+      <div
+        style={{
+          display:"flex",
+          gap:"15px",
+          padding:"20px",
+          borderBottom:"1px solid #1e293b"
+        }}
+      >
 
-        <Navbar />
+        <button onClick={()=> setPage("dashboard")}>
+          Dashboard
+        </button>
 
-        <Routes>
+        <button onClick={()=> setPage("projects")}>
+          Projects
+        </button>
 
-          <Route path="/" element={<Dashboard />} />
+        <button onClick={()=> setPage("planner")}>
+          Planner
+        </button>
 
-          <Route path="/planner" element={<Planner />} />
-
-          <Route path="/projects" element={<Projects />} />
-
-          <Route path="/groups" element={<Groups />} />
-
-        </Routes>
+        <button onClick={()=> setPage("groups")}>
+          Groups
+        </button>
 
       </div>
+
+      {/* PAGES */}
+
+      {
+
+        page === "dashboard" && <Dashboard />
+
+      }
+
+      {
+
+        page === "projects" && <Projects />
+
+      }
+
+      {
+
+        page === "planner" && <Planner />
+
+      }
+
+      {
+
+        page === "groups" && <Groups />
+
+      }
 
     </div>
 
   )
+
 }
 
 export default App

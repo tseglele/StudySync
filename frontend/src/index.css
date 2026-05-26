@@ -284,3 +284,59 @@ body{
   }
 
 }
+.add-task{
+  display:flex;
+  gap:10px;
+  margin-top:20px;
+}
+
+.add-task input{
+  flex:1;
+  padding:15px;
+  border:none;
+  border-radius:12px;
+  background:#1f2937;
+  color:white;
+}
+
+.add-task button{
+  background:#8b5cf6;
+  border:none;
+  color:white;
+  padding:15px 20px;
+  border-radius:12px;
+  cursor:pointer;
+}
+
+.task-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.delete-btn{
+  background:#7f1d1d;
+  border:none;
+  color:white;
+  width:35px;
+  height:35px;
+  border-radius:10px;
+  cursor:pointer;
+}
+.done-btn{
+  background:#14532d;
+  border:none;
+  color:white;
+  width:35px;
+  height:35px;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+.completed{
+  opacity:0.6;
+}
+
+.completed h4{
+  text-decoration:line-through;
+}
