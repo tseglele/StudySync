@@ -59,7 +59,7 @@ project/
 
 Les variables doivent être :
 
-- en français
+- en anglais
 - en camelCase
 - sans underscore
 
