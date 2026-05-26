@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Connexion from './pages/Connexion'
+import Connexion from './pages/Connexion/Connexion'
 import Inscription from './pages/Inscription'
 import Dashboard from './pages/Dashboard'
 import ProtectedRoute from './components/ProtectedRoute'

@@ -4,9 +4,9 @@ services:
     ports:
       - "3000:3000"
     environment:
-    DATABASE_URL: postgresql://bernadjouboune:tonmotdepasse@db:5432/studysync
-    JWT_SECRET: ton_secret_jwt
-    PORT: 3000
+      DATABASE_URL: postgresql://bernadjouboune:studysync123@db:5432/studysync
+      JWT_SECRET: ton_secret_jwt
+      PORT: 3000
     depends_on:
       - db
 
@@ -21,7 +21,7 @@ services:
     image: postgres:15
     environment:
       POSTGRES_USER: bernadjouboune
-      POSTGRES_PASSWORD: tonmotdepasse
+      POSTGRES_PASSWORD: studysync123
       POSTGRES_DB: studysync
     ports:
       - "5432:5432"
