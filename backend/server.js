@@ -1,31 +1,51 @@
 const express = require("express")
 const cors = require("cors")
+const mongoose = require("mongoose")
 
 const app = express()
 
 app.use(cors())
-
 app.use(express.json())
 
-/* DATABASE TEMPORAIRE */
+/* MONGODB */
 
-let tasks = [
+mongoose.connect("mongodb://127.0.0.1:27017/studysync")
 
-  {
-    id: 1,
-    title: "Projet React"
-  },
+.then(() => {
 
-  {
-    id: 2,
-    title: "UI Dashboard"
+  console.log("MongoDB connecté")
+
+})
+
+.catch((err) => {
+
+  console.log(err)
+
+})
+
+/* TASK MODEL */
+
+const taskSchema = new mongoose.Schema({
+
+  title: String,
+
+  completed: {
+
+    type: Boolean,
+
+    default: false
+
   }
 
-]
+})
+
+const Task = mongoose.model("Task", taskSchema)
 
 /* GET TASKS */
 
-app.get("/api/tasks", (req, res) => {
+app.get("/api/tasks", async (req, res) => {
+
+  const tasks = await Task.find()
 
   res.json(tasks)
 
@@ -33,19 +53,45 @@ app.get("/api/tasks", (req, res) => {
 
 /* ADD TASK */
 
-app.post("/api/tasks", (req, res) => {
+app.post("/api/tasks", async (req, res) => {
 
-  const newTask = {
-
-    id: Date.now(),
+  const newTask = new Task({
 
     title: req.body.title
 
-  }
+  })
 
-  tasks.push(newTask)
+  await newTask.save()
 
   res.json(newTask)
+
+})
+
+/* DELETE TASK */
+
+app.delete("/api/tasks/:id", async (req, res) => {
+
+  await Task.findByIdAndDelete(req.params.id)
+
+  res.json({
+
+    message: "Task deleted"
+
+  })
+
+})
+
+/* COMPLETE TASK */
+
+app.put("/api/tasks/:id", async (req, res) => {
+
+  const task = await Task.findById(req.params.id)
+
+  task.completed = !task.completed
+
+  await task.save()
+
+  res.json(task)
 
 })
 
