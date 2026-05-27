@@ -1,40 +1,50 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import api from '../../Api.jsx'
 import './projets.css'
 
 function Projets() {
   const navigate = useNavigate()
   const [projets, setProjets] = useState([])
+  const [showModal, setShowModal] = useState(false)
+  const [form, setForm] = useState({ nom: '', description: '', dateLimite: '' })
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/projets')
-      .then(res => res.json())
-      .then(data => setProjets(data))
-      .catch(err => console.error(err))
+    api.get('/api/projets').then(res => setProjets(res.data)).catch(err => console.error(err))
   }, [])
+
+  const handleCreate = async () => {
+    if (!form.nom) return
+    setLoading(true)
+    try {
+      const res = await api.post('/api/projets', form)
+      setProjets(prev => [...prev, { ...res.data, avancement: 0 }])
+      setShowModal(false)
+      setForm({ nom: '', description: '', dateLimite: '' })
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="page">
       <h1 className="page-title">Mes Projets</h1>
       <p className="page-sub">Suivi de tes projets de groupe</p>
-
       <div className="page-meta">
         <span>{projets.length} projets actifs</span>
-        <button className="btn-rejoindre">+ Nouveau projet</button>
+        <button className="btn-rejoindre" onClick={() => setShowModal(true)}>+ Nouveau projet</button>
       </div>
-
       <div className="projets-liste">
         {projets.map((projet) => (
           <div key={projet.id} className="projet-carte" onClick={() => navigate(`/projets/${projet.id}`)} style={{cursor: 'pointer'}}>
             <div className="projet-header">
-              <div>
-                <p className="projet-nom">{projet.nom}</p>
-              </div>
+              <div><p className="projet-nom">{projet.nom}</p></div>
               <span className="projet-date">📅 {projet.dateLimite}</span>
             </div>
-
             <p className="projet-description">{projet.description}</p>
-
             <div className="progression">
               <div className="progression-header">
                 <span>Avancement</span>
@@ -47,6 +57,29 @@ function Projets() {
           </div>
         ))}
       </div>
+      {showModal && (
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <h2 className="modal-title">Nouveau projet</h2>
+            <div className="modal-field">
+              <label>Nom du projet *</label>
+              <input type="text" placeholder="Ex: Refonte UI Dashboard" value={form.nom} onChange={e => setForm({ ...form, nom: e.target.value })} />
+            </div>
+            <div className="modal-field">
+              <label>Description</label>
+              <textarea placeholder="Description du projet..." value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
+            </div>
+            <div className="modal-field">
+              <label>Date limite</label>
+              <input type="date" value={form.dateLimite} onChange={e => setForm({ ...form, dateLimite: e.target.value })} />
+            </div>
+            <div className="modal-actions">
+              <button className="btn-annuler" onClick={() => setShowModal(false)}>Annuler</button>
+              <button className="btn-rejoindre" onClick={handleCreate} disabled={loading}>{loading ? 'Création...' : 'Créer'}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -1,12 +1,7 @@
-FROM node:20-alpine
-
+FROM node:22-alpine
 WORKDIR /app
-
 COPY package*.json ./
-RUN npm install
-
+RUN npm install --network-timeout=300000
 COPY . .
-
 EXPOSE 3000
-
-CMD ["node", "server.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"]

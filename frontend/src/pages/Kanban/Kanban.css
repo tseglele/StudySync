@@ -112,3 +112,34 @@
     font-weight: 600;
     color: #2dd4a0;
   }
+  .tache-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  
+  .tache-actions button {
+    background: #2a2a3a;
+    border: none;
+    color: #7a7a9a;
+    padding: 2px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  
+  .tache-actions button:hover {
+    color: white;
+    background: #7c5cfc;
+  }
+  
+  .btn-rejoindre {
+    background-color: #7c5cfc;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+  }

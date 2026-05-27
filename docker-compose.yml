@@ -4,8 +4,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      DATABASE_URL: postgresql://bernadjouboune:studysync123@db:5432/studysync
-      JWT_SECRET: ton_secret_jwt
+      DATABASE_URL: postgresql://user:studysync123@db:5432/studysync
+      JWT_SECRET: monsecretjwt123
       PORT: 3000
     depends_on:
       - db
@@ -20,14 +20,13 @@ services:
   db:
     image: postgres:15
     environment:
-      POSTGRES_USER: bernadjouboune
+      POSTGRES_USER: user
       POSTGRES_PASSWORD: studysync123
       POSTGRES_DB: studysync
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
 volumes:
   pgdata:

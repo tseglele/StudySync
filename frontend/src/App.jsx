@@ -9,16 +9,13 @@ import Kanban from './pages/Kanban/Kanban.jsx'
 function App() {
   return (
     <Routes>
-
-        <Route  path="/register" element={<Inscription />} />
-        <Route  path="/login" element={<Connexion />} />
-        <Route path="/dashboard" element={ <ProtectedRoute> <Dashboard />  </ProtectedRoute> }/>
-        <Route  path="/projets" element={<Projets />} />
-       <Route  path="/projets/:id" element={<Projets />} />
-       <Route  path="/kanban" element={<Kanban />} />
-
-      </Routes>
-
+      <Route path="/register" element={<Inscription />} />
+      <Route path="/login" element={<Connexion />} />
+      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/projets" element={<Projets />} />
+      <Route path="/projets/:id" element={<Kanban />} />
+      <Route path="/kanban" element={<Kanban />} />
+    </Routes>
   )
 }
 
