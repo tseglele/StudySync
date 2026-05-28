@@ -15,7 +15,7 @@ const couleurPriorite = {
 }
 
 // Reçoit projetId, projetNom et onFermer depuis Projets.jsx
-function Kanban({ projetId, projetNom, onFermer }) {
+function Kanban({ projetId, projetNom, onFermer, onTacheUpdate }) {
   const [taches, setTaches] = useState([])
   const [showModal, setShowModal] = useState(false)
   const [form, setForm] = useState({ titre: '', assignee: '', priorite: 'Moyenne' })
@@ -50,13 +50,16 @@ function Kanban({ projetId, projetNom, onFermer }) {
   }
 
   const handleStatut = async (tacheId, nouveauStatut) => {
-    try {
-      await api.patch(`/api/taches/${tacheId}/statut`, { statut: nouveauStatut })
-      setTaches(prev => prev.map(t => t.id === tacheId ? { ...t, statut: nouveauStatut } : t))
-    } catch (err) {
-      console.error(err)
-    }
+  console.log('handleStatut appelé', tacheId, nouveauStatut)
+  try {
+    await api.patch(`/api/taches/${tacheId}/statut`, { statut: nouveauStatut })
+    setTaches(prev => prev.map(t => t.id === tacheId ? { ...t, statut: nouveauStatut } : t))
+    console.log('onTacheUpdate existe?', !!onTacheUpdate)
+    if (onTacheUpdate) onTacheUpdate()
+  } catch (err) {
+    console.error(err)
   }
+}
 
   return (
     <div className="kanban-page">

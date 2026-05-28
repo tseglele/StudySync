@@ -9,7 +9,7 @@ function Sidebar() {
         <li><Link to="/dashboard">Dashboard</Link></li>
     
         <li><Link to="/planner">Planner</Link></li>
-        <li><Link to="/projects">Projects</Link></li>
+        <li><Link to="/projets">Projets</Link></li>
 
         <li><Link to="/profil">Profil</Link></li>
       </ul>
