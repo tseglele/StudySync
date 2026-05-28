@@ -77,9 +77,14 @@ function Projets() {
   }
 
   return (
-    <div className="page">
-    <h1 className="page-title">Mes Projets</h1>
-      <p className="page-sub">Suivi de tes projets de groupe</p>
+      <div className="page"> 
+      <h1 className="page-title">
+        Mes Projets
+      </h1>
+
+      <p className="page-sub">
+        Suivi de tes projets de groupe
+      </p>
 
       <div className="page-meta">
         <span>{projets.length} projets actifs</span>
