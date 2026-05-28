@@ -1,27 +1,61 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import api from '../../Api.jsx'
+import Kanban from '../../components/Kanban/Kanban'
 import './projets.css'
 
 function Projets() {
-  const navigate = useNavigate()
   const [projets, setProjets] = useState([])
+  const [projetActif, setProjetActif] = useState(null)
   const [showModal, setShowModal] = useState(false)
-  const [form, setForm] = useState({ nom: '', description: '', dateLimite: '' })
+  const [form, setForm] = useState({
+    nom: '',
+    description: '',
+    dateLimite: ''
+  })
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    api.get('/api/projets').then(res => setProjets(res.data)).catch(err => console.error(err))
+    api.get('/api/projets')
+      .then(res => {
+        console.log('PROJETS API:', res.data)
+
+        const projetsData =
+          res.data?.projets ||
+          res.data?.data ||
+          res.data
+
+        setProjets(
+          Array.isArray(projetsData)
+            ? projetsData
+            : []
+        )
+      })
+      .catch(err => console.error(err))
   }, [])
 
   const handleCreate = async () => {
     if (!form.nom) return
+
     setLoading(true)
+
     try {
       const res = await api.post('/api/projets', form)
-      setProjets(prev => [...prev, { ...res.data, avancement: 0 }])
+
+      setProjets(prev => [
+        ...prev,
+        {
+          ...res.data,
+          avancement: 0
+        }
+      ])
+
       setShowModal(false)
-      setForm({ nom: '', description: '', dateLimite: '' })
+
+      setForm({
+        nom: '',
+        description: '',
+        dateLimite: ''
+      })
     } catch (err) {
       console.error(err)
     } finally {
@@ -31,51 +65,184 @@ function Projets() {
 
   return (
     <div className="page">
-      <h1 className="page-title">Mes Projets</h1>
-      <p className="page-sub">Suivi de tes projets de groupe</p>
+      <h1 className="page-title">
+        Mes Projets
+      </h1>
+
+      <p className="page-sub">
+        Suivi de tes projets de groupe
+      </p>
+
       <div className="page-meta">
-        <span>{projets.length} projets actifs</span>
-        <button className="btn-rejoindre" onClick={() => setShowModal(true)}>+ Nouveau projet</button>
+        <span>
+          {projets.length} projets actifs
+        </span>
+
+        <button
+          className="btn-rejoindre"
+          onClick={() => setShowModal(true)}
+        >
+          + Nouveau projet
+        </button>
       </div>
+
       <div className="projets-liste">
-        {projets.map((projet) => (
-          <div key={projet.id} className="projet-carte" onClick={() => navigate(`/projets/${projet.id}`)} style={{cursor: 'pointer'}}>
+        {projets?.map?.((projet) => (
+          <div
+            key={projet.id}
+            className="projet-carte"
+            onClick={() => setProjetActif(projet)}
+            style={{ cursor: 'pointer' }}
+          >
             <div className="projet-header">
-              <div><p className="projet-nom">{projet.nom}</p></div>
-              <span className="projet-date">📅 {projet.dateLimite}</span>
+              <div>
+                <p className="projet-nom">
+                  {projet.nom}
+                </p>
+              </div>
+
+              <span className="projet-date">
+                📅 {projet.dateLimite}
+              </span>
             </div>
-            <p className="projet-description">{projet.description}</p>
+
+            <p className="projet-description">
+              {projet.description}
+            </p>
+
             <div className="progression">
               <div className="progression-header">
                 <span>Avancement</span>
-                <span className="progression-pct">{projet.avancement}%</span>
+
+                <span className="progression-pct">
+                  {projet.avancement || 0}%
+                </span>
               </div>
+
               <div className="barre-fond">
-                <div className="barre-remplie" style={{width: `${projet.avancement}%`}}></div>
+                <div
+                  className="barre-remplie"
+                  style={{
+                    width: `${projet.avancement || 0}%`
+                  }}
+                />
               </div>
             </div>
           </div>
         ))}
       </div>
+
+      <div className="kanban-section">
+        {projetActif ? (
+          <Kanban
+            projetId={projetActif.id}
+            projetNom={projetActif.nom}
+            onFermer={() =>
+              setProjetActif(null)
+            }
+          />
+        ) : (
+          <div className="kanban-placeholder">
+            <h3>
+              Sélectionne un projet
+            </h3>
+
+            <p>
+              Clique sur un projet pour
+              afficher son Kanban
+            </p>
+          </div>
+        )}
+      </div>
+
       {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <h2 className="modal-title">Nouveau projet</h2>
+        <div
+          className="modal-overlay"
+          onClick={() =>
+            setShowModal(false)
+          }
+        >
+          <div
+            className="modal"
+            onClick={e =>
+              e.stopPropagation()
+            }
+          >
+            <h2 className="modal-title">
+              Nouveau projet
+            </h2>
+
             <div className="modal-field">
-              <label>Nom du projet *</label>
-              <input type="text" placeholder="Ex: Refonte UI Dashboard" value={form.nom} onChange={e => setForm({ ...form, nom: e.target.value })} />
+              <label>
+                Nom du projet *
+              </label>
+
+              <input
+                type="text"
+                placeholder="Ex: Refonte UI Dashboard"
+                value={form.nom}
+                onChange={e =>
+                  setForm({
+                    ...form,
+                    nom: e.target.value
+                  })
+                }
+              />
             </div>
+
             <div className="modal-field">
               <label>Description</label>
-              <textarea placeholder="Description du projet..." value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
+
+              <textarea
+                placeholder="Description du projet..."
+                value={form.description}
+                onChange={e =>
+                  setForm({
+                    ...form,
+                    description:
+                      e.target.value
+                  })
+                }
+              />
             </div>
+
             <div className="modal-field">
-              <label>Date limite</label>
-              <input type="date" value={form.dateLimite} onChange={e => setForm({ ...form, dateLimite: e.target.value })} />
+              <label>
+                Date limite
+              </label>
+
+              <input
+                type="date"
+                value={form.dateLimite}
+                onChange={e =>
+                  setForm({
+                    ...form,
+                    dateLimite:
+                      e.target.value
+                  })
+                }
+              />
             </div>
+
             <div className="modal-actions">
-              <button className="btn-annuler" onClick={() => setShowModal(false)}>Annuler</button>
-              <button className="btn-rejoindre" onClick={handleCreate} disabled={loading}>{loading ? 'Création...' : 'Créer'}</button>
+              <button
+                className="btn-annuler"
+                onClick={() =>
+                  setShowModal(false)
+                }
+              >
+                Annuler
+              </button>
+
+              <button
+                className="btn-rejoindre"
+                onClick={handleCreate}
+                disabled={loading}
+              >
+                {loading
+                  ? 'Création...'
+                  : 'Créer'}
+              </button>
             </div>
           </div>
         </div>

@@ -210,3 +210,44 @@
   cursor: pointer;
   font-size: 14px;
 }
+.kanban-section {
+  margin-top: 2rem;
+}
+
+.kanban-placeholder {
+  background-color: #16161e;
+  border: 1px solid #2a2a3a;
+  border-radius: 16px;
+  min-height: 420px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  text-align: center;
+  padding: 40px 24px;
+
+  color: white;
+}
+
+.kanban-placeholder h3 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: white;
+}
+
+.kanban-placeholder p {
+  font-size: 14px;
+  color: #7a7a9a;
+  max-width: 320px;
+  line-height: 1.6;
+}
+
+.kanban-placeholder::before {
+  content: "📋";
+  font-size: 56px;
+  margin-bottom: 20px;
+  opacity: 0.9;
+}
