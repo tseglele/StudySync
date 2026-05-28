@@ -1,0 +1,59 @@
+/* ===== LAYOUT ===== */
+.layout {
+  display: flex;
+  min-height: 100vh;
+  background: #111116;
+  color: #f0eff5;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.planner-container {
+  margin-left: 220px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 32px;
+  box-sizing: border-box;
+  width: calc(100% - 220px); /* force la largeur correcte */
+}
+
+.title {
+  font-family: 'Fraunces', serif;
+  font-size: 26px;
+  font-weight: 300;
+  letter-spacing: -0.7px;
+  margin: 0 0 2px 0;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: #8b8a9e;
+  margin: 0 0 16px 0;
+}
+
+.calendar-wrapper {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #2a2a38;
+  overflow: auto; /* scroll possible si besoin */
+}
+
+/* ===== SCHEDULE-X VARIABLES ===== */
+.calendar-wrapper {
+  --sx-color-background:          #111116;
+  --sx-color-on-background:       #f0eff5;
+  --sx-color-surface:             #1c1c24;
+  --sx-color-surface-variant:     #22222e;
+  --sx-color-on-surface:          #e8e7f0;
+  --sx-color-on-surface-variant:  #8b8a9e;
+
+  --sx-color-outline:             #2e2e3e;
+  --sx-color-outline-variant:     #252535;
+
+  --sx-color-primary:             #7c6af7;
+  --sx-color-primary-container:   rgba(124, 106, 247, 0.18);
+  --sx-color-on-primary:          #ffffff;
+  --sx-color-on-primary-container:#f0eff5;
+
+  --sx-font-family: 'DM Sans', sans-serif;
+}
