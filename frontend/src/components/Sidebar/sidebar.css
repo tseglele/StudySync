@@ -1,0 +1,42 @@
+/* ===== SIDEBAR ===== */
+.sidebar {
+  width: 220px;
+  min-height: 100vh;
+  background: #131318;
+  border-radius: 20px;
+  border-right: 1px solid #2a2a38;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 12px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 100;
+}
+ 
+.menu {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+ 
+.menu li a {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 12px;
+  border-radius: 7px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px;
+  color: #8b8a9e;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+ 
+.menu li a:hover {
+  background: #20202b;
+  color: #7c6af7;
+}
+ 
