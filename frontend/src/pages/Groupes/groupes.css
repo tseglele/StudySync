@@ -1,0 +1,265 @@
+.groupes-page {
+  background-color: #0f0f14;
+  min-height: 100vh;
+  color: white;
+  font-family: sans-serif;
+  padding: 0;
+}
+
+.groupes-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 32px;
+  border-bottom: 1px solid #2a2a3a;
+}
+
+.groupes-title-top {
+  font-size: 14px;
+  color: #7a7a9a;
+}
+
+.groupes-icons {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.avatar-top {
+  background: #7c5cfc;
+  color: white;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.groupes-titre {
+  font-size: 36px;
+  font-weight: bold;
+  padding: 32px 32px 4px;
+}
+
+.groupes-sub {
+  color: #7a7a9a;
+  font-size: 14px;
+  padding: 0 32px 24px;
+}
+
+.groupes-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px 24px;
+}
+
+.groupes-meta span {
+  color: #7a7a9a;
+  font-size: 14px;
+}
+
+.btn-rejoindre {
+  background-color: #7c5cfc;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.groupes-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  padding: 0 32px 32px;
+}
+
+.groupe-carte {
+  background-color: #16161e;
+  border: 1px solid #2a2a3a;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.groupe-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.groupe-emoji {
+  background: #2a2a3a;
+  border-radius: 12px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.groupe-nom {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.groupe-cours {
+  font-size: 13px;
+  color: #7a7a9a;
+}
+
+.groupe-membres {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.avatar-membre {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: bold;
+  color: white;
+}
+
+.avatar-plus {
+  background: #2a2a3a;
+  color: #7a7a9a;
+}
+
+.membres-count {
+  font-size: 13px;
+  color: #7a7a9a;
+  margin-left: 8px;
+}
+
+.groupe-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.stat-box {
+  background: #0f0f14;
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-number {
+  font-size: 28px;
+  font-weight: 700;
+  color: #7c5cfc;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #7a7a9a;
+}
+
+.groupe-vide {
+  border: 2px dashed #2a2a3a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 200px;
+  cursor: pointer;
+}
+
+.vide-icon {
+  font-size: 36px;
+  color: #2a2a3a;
+}
+
+.vide-text {
+  color: #7a7a9a;
+  font-size: 14px;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal {
+  background: #16161e;
+  border: 1px solid #2a2a3a;
+  border-radius: 16px;
+  padding: 32px;
+  width: 100%;
+  max-width: 460px;
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.modal-field label {
+  font-size: 13px;
+  color: #7a7a9a;
+}
+
+.modal-field input {
+  background: #0f0f14;
+  border: 1px solid #2a2a3a;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: white;
+  font-size: 14px;
+  outline: none;
+}
+
+.modal-field input:focus {
+  border-color: #7c5cfc;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.btn-annuler {
+  background: transparent;
+  border: 1px solid #2a2a3a;
+  color: #7a7a9a;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
