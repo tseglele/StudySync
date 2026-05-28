@@ -45,26 +45,22 @@ function Projets() {
   }, [])
 
   const refreshAvancement = async (projetId) => {
-  console.log('projetId:', projetId, typeof projetId)
   try {
     const tachesRes = await api.get(`/api/projets/${projetId}/taches`)
     const taches = tachesRes.data
-    console.log('taches récupérées:', taches)
     const total = taches.length
     const terminees = taches.filter(t => t.statut === 'done').length
-    console.log('total:', total, 'terminees:', terminees)
     const avancement = total > 0 ? Math.round((terminees / total) * 100) : 0
 
-    setProjets(prev => {
-      console.log('projets avant update:', prev)
-      return prev.map(p =>
-        p.id === projetId ? { ...p, avancement } : p
-      )
-    })
+    setProjets(prev => prev.map(p =>
+      p.id === projetId ? { ...p, avancement } : p
+    ))
   } catch (err) {
     console.error(err)
   }
 }
+  
+
   const handleCreate = async () => {
     if (!form.nom) return
     setLoading(true)
@@ -82,7 +78,7 @@ function Projets() {
 
   return (
     <div className="page">
-      <h1 className="page-title">Mes Projets</h1>
+    <h1 className="page-title">Mes Projets</h1>
       <p className="page-sub">Suivi de tes projets de groupe</p>
 
       <div className="page-meta">
