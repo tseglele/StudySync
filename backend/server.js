@@ -9,7 +9,9 @@ import RouteProjet from './routes/RouteProjet.js'
 import RouteTache from './routes/RouteTache.js'
 import RouteNotifications from './routes/RouteNotifications.js'
 import RouteProfil from './routes/RouteProfil.js'
+import RouteGroupe from './routes/RouteGroupe.js'
 import verifyToken from './middleware/authMiddleware.js'
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 dotenv.config({ path: path.resolve(__dirname, '.env.local') })
 
@@ -23,6 +25,7 @@ app.use('/api/projets', RouteProjet)
 app.use('/api/taches', RouteTache)
 app.use('/api/notifications', verifyToken, RouteNotifications)
 app.use('/api/profil', verifyToken, RouteProfil)
+app.use('/api/groupes', RouteGroupe)
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {

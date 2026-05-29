@@ -13,8 +13,26 @@ model User {
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
+  groupes   GroupeMembre[]
 
   @@map("users")
+}
+
+model Groupe {
+  id        Int      @id @default(autoincrement())
+  nom       String
+  cours     String?
+  emoji     String?
+  createdAt DateTime @default(now())
+  membres   GroupeMembre[]
+}
+
+model GroupeMembre {
+  id       Int    @id @default(autoincrement())
+  userId   Int
+  groupeId Int
+  user     User   @relation(fields: [userId], references: [id])
+  groupe   Groupe @relation(fields: [groupeId], references: [id])
 }
 
 model Project {
