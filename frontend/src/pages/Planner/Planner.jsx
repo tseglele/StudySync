@@ -8,7 +8,6 @@ import {
   createViewMonthAgenda,
 } from "@schedule-x/calendar";
 import "@schedule-x/theme-default/dist/index.css";
- 
 import Sidebar from "../../components/Sidebar/Sidebar";
 import "./planner.css";
  

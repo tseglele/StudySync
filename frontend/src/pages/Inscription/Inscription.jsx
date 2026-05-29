@@ -19,14 +19,14 @@ function Inscription() {
       return
     }
 
-    try {
-      await api.post('/auth/register', { name, email, password })
-      navigate('/login')
-    } catch (err) {
-      setError('Une erreur est survenue')
-      console.error(err)
-    }
-  }
+  try {
+    const res = await api.post('/auth/register', { name, email, password })
+    localStorage.setItem('user', JSON.stringify(res.data.user))
+    navigate('/login')
+} catch (err) {
+  setError('Une erreur est survenue')
+  console.error(err)
+}
 
 
 
@@ -59,6 +59,7 @@ return (
     </div>
   </div>
 )
+}
 }
 
 export default Inscription

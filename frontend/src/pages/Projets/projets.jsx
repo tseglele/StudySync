@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import api from '../../Api.jsx'
 import Kanban from '../../components/Kanban/Kanban'
+import Sidebar from "../../components/Sidebar/Sidebar"
 import './projets.css'
 
 function Projets() {
@@ -45,21 +46,19 @@ function Projets() {
   }, [])
 
   const refreshAvancement = async (projetId) => {
-  try {
-    const tachesRes = await api.get(`/api/projets/${projetId}/taches`)
-    const taches = tachesRes.data
-    const total = taches.length
-    const terminees = taches.filter(t => t.statut === 'done').length
-    const avancement = total > 0 ? Math.round((terminees / total) * 100) : 0
-
-    setProjets(prev => prev.map(p =>
-      p.id === projetId ? { ...p, avancement } : p
-    ))
-  } catch (err) {
-    console.error(err)
+    try {
+      const tachesRes = await api.get(`/api/projets/${projetId}/taches`)
+      const taches = tachesRes.data
+      const total = taches.length
+      const terminees = taches.filter(t => t.statut === 'done').length
+      const avancement = total > 0 ? Math.round((terminees / total) * 100) : 0
+      setProjets(prev => prev.map(p =>
+        p.id === projetId ? { ...p, avancement } : p
+      ))
+    } catch (err) {
+      console.error(err)
+    }
   }
-}
-  
 
   const handleCreate = async () => {
     if (!form.nom) return
@@ -75,111 +74,108 @@ function Projets() {
       setLoading(false)
     }
   }
+return (
+    <div className="layout">
+      <Sidebar />
+      <div className="page">
+        <h1 className="page-title">Mes Projets</h1>
+        <p className="page-sub">Suivi de tes projets de groupe</p>
 
-  return (
-      <div className="page"> 
-      <h1 className="page-title">
-        Mes Projets
-      </h1>
+        <div className="page-meta">
+          <span>{projets.length} projets actifs</span>
+          <button className="btn-rejoindre" onClick={() => setShowModal(true)}>
+            + Nouveau projet
+          </button>
+        </div>
 
-      <p className="page-sub">
-        Suivi de tes projets de groupe
-      </p>
-
-      <div className="page-meta">
-        <span>{projets.length} projets actifs</span>
-        <button className="btn-rejoindre" onClick={() => setShowModal(true)}>
-          + Nouveau projet
-        </button>
-      </div>
-
-      <div className="projets-liste">
-        {projets?.map?.((projet) => (
-          <div
-            key={projet.id}
-            className="projet-carte"
-            onClick={() => setProjetActif(projet)}
-            style={{ cursor: 'pointer' }}
-          >
-            <div className="projet-header">
-              <div>
-                <p className="projet-nom">{projet.nom}</p>
+        <div className="projets-liste">
+          {projets?.map?.((projet) => (
+            <div
+              key={projet.id}
+              className="projet-carte"
+              onClick={() => setProjetActif(projet)}
+              style={{ cursor: 'pointer' }}
+            >
+              <div className="projet-header">
+                <div>
+                  <p className="projet-nom">{projet.nom}</p>
+                </div>
+                <span className="projet-date">📅 {projet.dateLimite}</span>
               </div>
-              <span className="projet-date">📅 {projet.dateLimite}</span>
+              <p className="projet-description">{projet.description}</p>
+              <div className="progression">
+                <div className="progression-header">
+                  <span>Avancement</span>
+                  <span className="progression-pct">{projet.avancement || 0}%</span>
+                </div>
+                <div className="barre-fond">
+                  <div
+                    className="barre-remplie"
+                    style={{ width: `${projet.avancement || 0}%` }}
+                  />
+                </div>
+              </div>
             </div>
-            <p className="projet-description">{projet.description}</p>
-            <div className="progression">
-              <div className="progression-header">
-                <span>Avancement</span>
-                <span className="progression-pct">{projet.avancement || 0}%</span>
-              </div>
-              <div className="barre-fond">
-                <div
-                  className="barre-remplie"
-                  style={{ width: `${projet.avancement || 0}%` }}
+          ))}
+        </div>
+
+        <div className="kanban-section">
+          {projetActif ? (
+            <Kanban
+              projetId={projetActif.id}
+              projetNom={projetActif.nom}
+              onFermer={() => setProjetActif(null)}
+              onTacheUpdate={() => refreshAvancement(projetActif.id)}
+            />
+          ) : (
+            <div className="kanban-placeholder">
+              <h3>Sélectionne un projet</h3>
+              <p>Clique sur un projet pour afficher son Kanban</p>
+            </div>
+          )}
+        </div>
+
+        {showModal && (
+          <div className="modal-overlay" onClick={() => setShowModal(false)}>
+            <div className="modal" onClick={e => e.stopPropagation()}>
+              <h2 className="modal-title">Nouveau projet</h2>
+              <div className="modal-field">
+                <label>Nom du projet *</label>
+                <input
+                  type="text"
+                  placeholder="Ex: Refonte UI Dashboard"
+                  value={form.nom}
+                  onChange={e => setForm({ ...form, nom: e.target.value })}
                 />
               </div>
+              <div className="modal-field">
+                <label>Description</label>
+                <textarea
+                  placeholder="Description du projet..."
+                  value={form.description}
+                  onChange={e => setForm({ ...form, description: e.target.value })}
+                />
+              </div>
+              <div className="modal-field">
+                <label>Date limite</label>
+                <input
+                  type="date"
+                  value={form.dateLimite}
+                  onChange={e => setForm({ ...form, dateLimite: e.target.value })}
+                />
+              </div>
+              <div className="modal-actions">
+                <button className="btn-annuler" onClick={() => setShowModal(false)}>
+                  Annuler
+                </button>
+                <button className="btn-rejoindre" onClick={handleCreate} disabled={loading}>
+                  {loading ? 'Création...' : 'Créer'}
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="kanban-section">
-        {projetActif ? (
-          <Kanban
-            projetId={projetActif.id}
-            projetNom={projetActif.nom}
-            onFermer={() => setProjetActif(null)}
-            onTacheUpdate={() => refreshAvancement(projetActif.id)}
-          />
-        ) : (
-          <div className="kanban-placeholder">
-            <h3>Sélectionne un projet</h3>
-            <p>Clique sur un projet pour afficher son Kanban</p>
           </div>
         )}
       </div>
-
-      {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <h2 className="modal-title">Nouveau projet</h2>
-            <div className="modal-field">
-              <label>Nom du projet *</label>
-              <input
-                type="text"
-                placeholder="Ex: Refonte UI Dashboard"
-                value={form.nom}
-                onChange={e => setForm({ ...form, nom: e.target.value })}
-              />
-            </div>
-            <div className="modal-field">
-              <label>Description</label>
-              <textarea
-                placeholder="Description du projet..."
-                value={form.description}
-                onChange={e => setForm({ ...form, description: e.target.value })}
-              />
-            </div>
-            <div className="modal-field">
-              <label>Date limite</label>
-              <input
-                type="date"
-                value={form.dateLimite}
-                onChange={e => setForm({ ...form, dateLimite: e.target.value })}
-              />
-            </div>
-            <div className="modal-actions">
-              <button className="btn-annuler" onClick={() => setShowModal(false)}>
-                Annuler
-              </button>
-              <button className="btn-rejoindre" onClick={handleCreate} disabled={loading}>
-                {loading ? 'Création...' : 'Créer'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
