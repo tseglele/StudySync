@@ -50,6 +50,7 @@ model Task {
   titre     String
   statut    String   @default("todo")
   priorite  String   @default("Moyenne")
+  deadline  String? 
   assignee  String?
   projectId Int
   project   Project  @relation(fields: [projectId], references: [id])

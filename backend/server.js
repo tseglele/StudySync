@@ -13,7 +13,7 @@ import RouteGroupe from './routes/RouteGroupe.js'
 import verifyToken from './middleware/authMiddleware.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-dotenv.config({ path: path.resolve(__dirname, '.env.local') })
+dotenv.config({ path: path.resolve(__dirname, '.env') })
 
 const app = express()
 app.use(cors())

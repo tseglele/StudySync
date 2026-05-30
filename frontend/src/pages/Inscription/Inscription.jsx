@@ -23,12 +23,11 @@ function Inscription() {
     const res = await api.post('/auth/register', { name, email, password })
     localStorage.setItem('user', JSON.stringify(res.data.user))
     navigate('/login')
-} catch (err) {
-  setError('Une erreur est survenue')
-  console.error(err)
+  } catch (err) {
+    setError('Une erreur est survenue')
+    console.error(err)
+  }
 }
-
-
 
 return (
   <div className="inscription-wrapper">
@@ -60,6 +59,6 @@ return (
   </div>
 )
 }
-}
+
 
 export default Inscription

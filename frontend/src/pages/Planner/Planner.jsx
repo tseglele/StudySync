@@ -1,4 +1,5 @@
-
+import { useState, useEffect } from "react";
+import { useTaches } from "../../hooks/useTaches.js";
 import { useCalendarApp, ScheduleXCalendar } from "@schedule-x/react";
 import {
   createViewDay,
@@ -9,54 +10,38 @@ import {
 } from "@schedule-x/calendar";
 import "@schedule-x/theme-default/dist/index.css";
 import Sidebar from "../../components/Sidebar/Sidebar";
+import Api from "../../Api";
 import "./planner.css";
 
- function couleurParPriorite(priorite) {
-  if (priorite === 'Haute') return '#ef4444'   // rouge
-  if (priorite === 'Moyenne') return '#f59e0b' // orange
-  return '#22c55e'                              // vert
-}
 function Planner() {
+  const { taches, projets, refresh } = useTaches();
+  const events = taches
+    .map((tache) => {
+      const projet = projets.find((p) => p.id === tache.projetId);
+      const date = projet?.dateLimite || tache.deadline;
 
-    const [events, setEvents] = useState([])
+      if (!date) return null;
 
-  // ✅ Récupérer toutes les tâches de tous les projets
-  useEffect(() => {
-    const fetchTaches = async () => {
-      try {
-        // 1. Récupérer tous les projets
-        const projetsRes = await api.get('/api/projets')
-        const projets = Array.isArray(projetsRes.data) ? projetsRes.data : []
+      const safeDate = new Date(date);
+      if (isNaN(safeDate)) return null;
 
-        // 2. Pour chaque projet, récupérer ses tâches
-        const toutesLesTaches = []
-        for (const projet of projets) {
-          const tachesRes = await api.get(`/api/projets/${projet.id}/taches`)
-          const taches = tachesRes.data
-          taches.forEach(tache => {
-            // On crée un event seulement si la tâche n'est pas terminée
-            if (tache.statut !== 'done' && projet.dateLimite) {
-              toutesLesTaches.push({
-                id: String(tache.id),
-                title: `${tache.titre} — ${projet.nom}`,
-                start: projet.dateLimite.slice(0, 10), // format YYYY-MM-DD
-                end: projet.dateLimite.slice(0, 10),
-                // La couleur dépend de la priorité
-                calendarId: tache.priorite === 'Haute' ? 'urgent' 
-                          : tache.priorite === 'Moyenne' ? 'moyen' 
-                          : 'normal'
-              })
-            }
-          })
-        }
-        setEvents(toutesLesTaches)
-      } catch (err) {
-        console.error('Erreur chargement tâches planner:', err)
-      }
-    }
-
-    fetchTaches()
-  }, [])
+      return {
+        id: String(tache.id),
+        title: tache.titre,
+        start: safeDate.toISOString().slice(0, 10),
+        end: safeDate.toISOString().slice(0, 10),
+        calendarId:
+          tache.priorite === "Haute"
+            ? "urgent"
+            : tache.priorite === "Moyenne"
+              ? "moyen"
+              : "normal",
+      };
+    })
+    .filter(Boolean);
+  console.log("TACHES", taches);
+  console.log("PROJETS", projets);
+  console.log("EVENTS", events);
   const calendar = useCalendarApp({
     views: [
       createViewDay(),
@@ -66,20 +51,35 @@ function Planner() {
       createViewMonthAgenda(),
     ],
     defaultView: "week",
-    events: [
-      {
-        id: "1",
-        title: "Rapport distribué — rendu",
-        start: Temporal.ZonedDateTime.from(
-          "2026-05-28T10:00:00+02:00[Europe/Paris]"
-        ),
-        end: Temporal.ZonedDateTime.from(
-          "2026-05-28T12:00:00+02:00[Europe/Paris]"
-        ),
+    events: events,
+    calendars: {
+      urgent: {
+        colorName: "urgent",
+        lightColors: {
+          main: "#ef4444",
+          container: "#fef2f2",
+          onContainer: "#7f1d1d",
+        },
       },
-    ],
+      moyen: {
+        colorName: "moyen",
+        lightColors: {
+          main: "#f59e0b",
+          container: "#fffbeb",
+          onContainer: "#78350f",
+        },
+      },
+      normal: {
+        colorName: "normal",
+        lightColors: {
+          main: "#22c55e",
+          container: "#f0fdf4",
+          onContainer: "#14532d",
+        },
+      },
+    },
   });
- 
+
   return (
     <div className="layout">
       <Sidebar />
@@ -93,6 +93,5 @@ function Planner() {
     </div>
   );
 }
- 
+
 export default Planner;
- 
