@@ -287,3 +287,24 @@
   background: #2a2a3a;
   color: white;
 }
+
+.groupe-code {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.code-label {
+  color: #6b6b80;
+}
+
+.code-valeur {
+  background: #1c1c2e;
+  color: #7c6ef5;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  letter-spacing: 2px;
+}

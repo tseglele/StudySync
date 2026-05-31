@@ -8,27 +8,33 @@ const colonnes = [
   { id: "done",        label: "Terminé"  },
 ]
 
-const couleurPriorite = {
-  "Haute":   "#f0506e",
-  "Moyenne": "#f59e4a",
-  "Basse":   "#2dd4a0",
+const couleurNiveau = {
+  "CRITIQUE": "#ef4444",
+  "URGENT":   "#f59e4a",
+  "NORMAL":   "#7c6ef5",
+  "FAIBLE":   "#2dd4a0",
 }
 
-// Reçoit projetId, projetNom et onFermer depuis Projets.jsx
-function Kanban({ projetId, projetNom, onFermer, onTacheUpdate }) {
+function Kanban({ projetId, projetNom, onFermer, onTacheUpdate, groupeId }) {
   const [taches, setTaches] = useState([])
+  const [membres, setMembres] = useState([])
   const [showModal, setShowModal] = useState(false)
-  const [form, setForm] = useState({ titre: '', assignee: '', priorite: 'Moyenne' })
+  const [form, setForm] = useState({ titre: '', assignee: '', deadline: '' })
   const [loading, setLoading] = useState(false)
 
-  // Recharge les tâches chaque fois qu'on change de projet
- useEffect(() => {
-  if (!projetId) return
+  useEffect(() => {
+    if (!projetId) return
 
-  api.get(`/api/projets/${projetId}/taches`)
-    .then(res => setTaches(res.data))
-    .catch(err => console.error(err))
-}, [projetId])
+    api.get(`/api/projets/${projetId}/taches`)
+      .then(res => setTaches(res.data))
+      .catch(err => console.error(err))
+
+    if (groupeId) {
+      api.get(`/api/groupes/${groupeId}/membres`)
+        .then(res => setMembres(res.data))
+        .catch(err => console.error(err))
+    }
+  }, [projetId, groupeId])
 
   const handleCreate = async () => {
     if (!form.titre) return
@@ -41,7 +47,7 @@ function Kanban({ projetId, projetNom, onFermer, onTacheUpdate }) {
       })
       setTaches(prev => [...prev, res.data])
       setShowModal(false)
-      setForm({ titre: '', assignee: '', priorite: 'Moyenne' })
+      setForm({ titre: '', assignee: '', deadline: '' })
     } catch (err) {
       console.error(err)
     } finally {
@@ -50,16 +56,14 @@ function Kanban({ projetId, projetNom, onFermer, onTacheUpdate }) {
   }
 
   const handleStatut = async (tacheId, nouveauStatut) => {
-  console.log('handleStatut appelé', tacheId, nouveauStatut)
-  try {
-    await api.patch(`/api/taches/${tacheId}/statut`, { statut: nouveauStatut })
-    setTaches(prev => prev.map(t => t.id === tacheId ? { ...t, statut: nouveauStatut } : t))
-    console.log('onTacheUpdate existe?', !!onTacheUpdate)
-    if (onTacheUpdate) onTacheUpdate()
-  } catch (err) {
-    console.error(err)
+    try {
+      await api.patch(`/api/taches/${tacheId}/statut`, { statut: nouveauStatut })
+      setTaches(prev => prev.map(t => t.id === tacheId ? { ...t, statut: nouveauStatut } : t))
+      if (onTacheUpdate) onTacheUpdate()
+    } catch (err) {
+      console.error(err)
+    }
   }
-}
 
   return (
     <div className="kanban-page">
@@ -86,8 +90,8 @@ function Kanban({ projetId, projetNom, onFermer, onTacheUpdate }) {
                     <p className="tache-titre">{tache.titre}</p>
                     <div className="tache-footer">
                       <span className="tache-assignee">{tache.assignee || '?'}</span>
-                      <span className="tache-priorite" style={{ color: colonne.id === 'done' ? '#2dd4a0' : couleurPriorite[tache.priorite] }}>
-                        {colonne.id === 'done' ? '✓ Fait' : tache.priorite}
+                      <span className="tache-priorite" style={{ color: colonne.id === 'done' ? '#2dd4a0' : couleurNiveau[tache.niveauPriorite] }}>
+                        {colonne.id === 'done' ? '✓ Fait' : tache.niveauPriorite || ''}
                       </span>
                     </div>
                     <div className="tache-actions">
@@ -113,17 +117,24 @@ function Kanban({ projetId, projetNom, onFermer, onTacheUpdate }) {
               <label>Titre *</label>
               <input type="text" placeholder="Ex: Configurer les serveurs" value={form.titre} onChange={e => setForm({ ...form, titre: e.target.value })} />
             </div>
+            {membres.length > 0 && (
+              <div className="modal-field">
+                <label>Assigné à</label>
+                <select value={form.assignee} onChange={e => setForm({ ...form, assignee: e.target.value })}>
+                  <option value="">Choisir un membre</option>
+                  {membres.map(m => (
+                    <option key={m.id} value={m.name}>{m.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
             <div className="modal-field">
-              <label>Assigné à</label>
-              <input type="text" placeholder="Ex: AM" value={form.assignee} onChange={e => setForm({ ...form, assignee: e.target.value })} />
-            </div>
-            <div className="modal-field">
-              <label>Priorité</label>
-              <select value={form.priorite} onChange={e => setForm({ ...form, priorite: e.target.value })}>
-                <option>Haute</option>
-                <option>Moyenne</option>
-                <option>Basse</option>
-              </select>
+              <label>Date limite</label>
+              <input
+                type="date"
+                value={form.deadline}
+                onChange={e => setForm({ ...form, deadline: e.target.value })}
+              />
             </div>
             <div className="modal-actions">
               <button className="btn-annuler" onClick={() => setShowModal(false)}>Annuler</button>
