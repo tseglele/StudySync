@@ -1,14 +1,18 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useNotifications } from "../../hooks/useNotifications";
+import api from "../../Api";
 import "./Topbar.css";
 
 function Topbar({ titre }) {
-  const { notifications } = useNotifications();
+  const { notifications, refreshNotifications } = useNotifications();
   const [showNotifs, setShowNotifs] = useState(false);
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user")) || { name: "Étudiant" };
-
+  const markAsRead = async (id) => {
+    await api.patch(`/api/notifications/${id}/lu`);
+    refreshNotifications();
+  };
   return (
     <div className="dashboard-topbar">
       <span className="topbar-titre">{titre}</span>
@@ -35,6 +39,7 @@ function Topbar({ titre }) {
                   <div
                     key={notif.id}
                     className={`notif-item ${notif.lu ? "lu" : ""}`}
+                    onClick={() => markAsRead(notif.id)}
                   >
                     <p>{notif.message}</p>
                     <span className="notif-date">

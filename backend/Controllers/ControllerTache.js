@@ -36,7 +36,7 @@ const getNiveauPriorite = (score) => {
 const getTachesByProjet = async (req, res) => {
   try {
     const { id } = req.params
-    const result = await pool.query('SELECT * FROM "Task" WHERE "projectId" = $1', [parseInt(id)])
+    const result = await pool.query('SELECT * FROM "Task" WHERE "projectId" = $1' , [parseInt(id)])
     
     const tachesAvecScore = result.rows.map(tache => ({
       ...tache,
@@ -54,33 +54,55 @@ const getTachesByProjet = async (req, res) => {
 
 const createTache = async (req, res) => {
   try {
-    const { id } = req.params
-    const { titre, assignee, statut = 'todo', deadline = null } = req.body
+    const { id } = req.params;
+    const { titre, assignee, statut = "todo", deadline = null } = req.body;
 
+    // 1. récupérer le projet
+    const projetResult = await pool.query(
+      'SELECT * FROM "Project" WHERE id = $1',
+      [parseInt(id)]
+    );
+
+    const projet = projetResult.rows[0];
+
+    if (!projet) {
+      return res.status(404).json({ error: "Projet introuvable" });
+    }
+
+    // 2. insert tâche
     const result = await pool.query(
       'INSERT INTO "Task" (titre, assignee, priorite, statut, "projectId", deadline) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-      [titre, assignee, 'Haute', statut, parseInt(id), deadline]
-    )
+      [titre, assignee, "Haute", statut, parseInt(id), deadline || null]
+    );
 
-    const tache = result.rows[0]
-    const score = calculerScore(tache)
-    const niveauPriorite = getNiveauPriorite(score)
+    const tache = result.rows[0];
 
-    // Notification si tâche urgente
-    if (niveauPriorite === 'CRITIQUE' || niveauPriorite === 'URGENT') {
+    const score = calculerScore(tache);
+    const niveauPriorite = getNiveauPriorite(score);
+
+    // 3. correction date compare
+    if (tache.deadline && projet.dateLimite) {
+      if (new Date(tache.deadline) > new Date(projet.dateLimite)) {
+        return res.status(400).json({
+          message: "La tâche dépasse la date limite du projet",
+        });
+      }
+    }
+
+    // 4. notification
+    if (niveauPriorite === "CRITIQUE" || niveauPriorite === "URGENT") {
       await pool.query(
         'INSERT INTO notifications ("userId", message) VALUES ($1, $2)',
         [req.user?.id, `⚠️ Nouvelle tâche urgente : ${titre}`]
-      )
+      );
     }
 
-    res.status(201).json({ ...tache, score, niveauPriorite })
+    res.status(201).json({ ...tache, score, niveauPriorite });
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: "Erreur serveur" })
+    console.error(error);
+    res.status(500).json({ error: "Erreur serveur" });
   }
-}
-
+};
 const updateStatutTache = async (req, res) => {
   try {
     const { id } = req.params

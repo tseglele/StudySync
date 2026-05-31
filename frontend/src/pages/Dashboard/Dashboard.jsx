@@ -17,6 +17,45 @@ function Dashboard() {
   const [projets, setProjets] = useState([]);
   const [tachesPrioritaires, setTachesPrioritaires] = useState([]);
 
+  const getPriority = (task) => {
+    let score = 0;
+
+    const today = new Date();
+
+    // deadline
+    if (task.deadline) {
+      const dueDate = new Date(task.deadline);
+
+      const diffTime = dueDate - today;
+
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays <= 2) {
+        score += 3;
+      } else if (diffDays <= 7) {
+        score += 2;
+      }
+    }
+
+    // priorité manuelle choisie
+    if (task.priorite === "Haute") {
+      score += 3;
+    } else if (task.priorite === "Moyenne") {
+      score += 2;
+    } else {
+      score += 1;
+    }
+
+    if (score >= 5) {
+      return "Haute";
+    }
+
+    if (score >= 3) {
+      return "Moyenne";
+    }
+
+    return "Basse";
+  };
   useEffect(() => {
     api
       .get("/api/projets")
@@ -45,11 +84,24 @@ function Dashboard() {
             return { ...projet, avancement };
           }),
         );
-
         setProjets(projetsAvecAvancement);
-        setTachesPrioritaires(
-          toutesLesTaches.filter((t) => t.statut !== "done").slice(0, 4),
-        );
+
+        const ordrePriorite = {
+          Haute: 3,
+          Moyenne: 2,
+          Basse: 1,
+        };
+
+        const tachesTriees = toutesLesTaches
+          .filter((t) => t.statut !== "done")
+          .sort((a, b) => {
+            return (
+              ordrePriorite[getPriority(b)] - ordrePriorite[getPriority(a)]
+            );
+          })
+          .slice(0, 4);
+
+        setTachesPrioritaires(tachesTriees);
         setStats({
           tachesEnCours,
           tachesCompletees,

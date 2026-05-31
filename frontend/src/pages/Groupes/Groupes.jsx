@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import api from "../../Api.jsx";
+import api from "../../Api";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import Kanban from "../../components/Kanban/Kanban";
 import "./groupes.css";
+import Topbar from "../../components/Topbar/Topbar.jsx";
 
 const couleurs = ["#7c5cfc", "#f59e4a", "#2dd4a0", "#f0506e", "#60a5fa"];
 
@@ -22,7 +23,7 @@ function Groupes() {
     dateLimite: "",
   });
   const [projetActifGroupe, setProjetActifGroupe] = useState(null);
-
+  const [statsGroupes, setStatsGroupes] = useState({});
   useEffect(() => {
     api
       .get("/api/groupes")
@@ -33,7 +34,29 @@ function Groupes() {
   const chargerProjets = async (groupeId) => {
     try {
       const res = await api.get(`/api/groupes/${groupeId}/projets`);
-      setProjetsGroupe(res.data);
+      const projetsData = res.data;
+
+      setProjetsGroupe(projetsData);
+
+      let tachesFaites = 0;
+
+      await Promise.all(
+        projetsData.map(async (projet) => {
+          const tachesRes = await api.get(`/api/projets/${projet.id}/taches`);
+
+          tachesFaites += tachesRes.data.filter(
+            (t) => t.statut === "done",
+          ).length;
+        }),
+      );
+
+      setStatsGroupes((prev) => ({
+        ...prev,
+        [groupeId]: {
+          projets: projetsData.length,
+          tachesFaites,
+        },
+      }));
     } catch (err) {
       console.error(err);
     }
@@ -83,29 +106,23 @@ function Groupes() {
       setGroupes(groupesRes.data);
     } catch (err) {
       alert("❌ Code invalide ou groupe introuvable");
-      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
+  // Fermer le groupe actif remet tout à zéro
+  const fermerGroupe = () => {
+    setGroupeActif(null);
+    setProjetActifGroupe(null);
+    setProjetsGroupe([]);
+  };
+
   return (
     <div className="groupes-page">
+      <Topbar />
       <Sidebar />
       <div className="page">
-        <div className="groupes-topbar">
-          <span className="groupes-title-top">Mes Groupes</span>
-          <div className="groupes-icons">
-            <span>+</span>
-            <span>🔔</span>
-            <span className="avatar-top">
-              {JSON.parse(localStorage.getItem("user"))
-                ?.name?.slice(0, 2)
-                .toUpperCase() || "ET"}
-            </span>
-          </div>
-        </div>
-
         <h1 className="groupes-titre">Mes Groupes</h1>
         <p className="groupes-sub">Collaboration avec tes camarades de cours</p>
 
@@ -122,16 +139,21 @@ function Groupes() {
           </button>
         </div>
 
+        {/* GRILLE GROUPES — flex wrap */}
         <div className="groupes-grid">
           {groupes.map((groupe) => (
             <div
               key={groupe.id}
               className={`groupe-carte ${groupeActif?.id === groupe.id ? "groupe-actif" : ""}`}
               onClick={() => {
-                setGroupeActif(groupe);
-                chargerProjets(groupe.id);
+                if (groupeActif?.id === groupe.id) {
+                  fermerGroupe();
+                } else {
+                  setGroupeActif(groupe);
+                  setProjetActifGroupe(null);
+                  chargerProjets(groupe.id);
+                }
               }}
-              style={{ cursor: "pointer" }}
             >
               <div className="groupe-header">
                 <div className="groupe-emoji">{groupe.emoji || "⬡"}</div>
@@ -139,7 +161,19 @@ function Groupes() {
                   <p className="groupe-nom">{groupe.nom}</p>
                   <p className="groupe-cours">{groupe.cours}</p>
                 </div>
+                {groupeActif?.id === groupe.id && (
+                  <button
+                    className="btn-fermer-groupe"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      fermerGroupe();
+                    }}
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
+
               <div className="groupe-membres">
                 {(groupe.membres || []).slice(0, 3).map((m, i) => (
                   <div
@@ -159,19 +193,37 @@ function Groupes() {
                   {(groupe.membres || []).length} membres
                 </span>
               </div>
-              <div className="groupe-stats">
-                <div className="stat-box">
-                  <span className="stat-number">0</span>
-                  <span className="stat-label">Projets actifs</span>
-                </div>
-                <div className="stat-box">
-                  <span className="stat-number">0</span>
-                  <span className="stat-label">Tâches faites</span>
-                </div>
+
+              <div className="stat-box">
+                <span className="stat-number">
+                  {statsGroupes[groupe.id]?.projets || 0}
+                </span>
+                <span className="stat-label">Projets actifs</span>
+              </div>
+
+              <div className="stat-box">
+                <span className="stat-number">
+                  {statsGroupes[groupe.id]?.tachesFaites || 0}
+                </span>
+                <span className="stat-label">Tâches faites</span>
               </div>
               <div className="groupe-code">
-                <span className="code-label">Code d'invitation :</span>
-                <span className="code-valeur">{groupe.code_invitation}</span>
+                <span className="code-label">Code :</span>
+                <span className="code-valeur">
+                  {groupe.codeInvite || groupe.code_invitation || "—"}
+                </span>
+                <button
+                  className="btn-copy"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigator.clipboard.writeText(
+                      groupe.codeInvite || groupe.code_invitation || "",
+                    );
+                    alert("Code copié !");
+                  }}
+                >
+                  📋
+                </button>
               </div>
             </div>
           ))}
@@ -183,52 +235,61 @@ function Groupes() {
               setOnglet("rejoindre");
             }}
           >
-            <div className="vide-icon">◯</div>
+            <div className="vide-icon">＋</div>
             <p className="vide-text">Rejoindre un groupe</p>
           </div>
         </div>
 
-        {/* PROJETS DU GROUPE */}
-        {groupeActif && (
+        {/* PROJETS DU GROUPE — s'affiche en dessous, fermable */}
+        {groupeActif && !projetActifGroupe && (
           <div className="groupe-projets">
             <div className="projets-header">
-              <h2>Projets — {groupeActif.nom}</h2>
-              <button
-                className="btn-rejoindre"
-                onClick={() => setShowProjetModal(true)}
-              >
-                + Nouveau projet
-              </button>
+              <h2>📂 Projets — {groupeActif.nom}</h2>
+              <div style={{ display: "flex", gap: "10px" }}>
+                <button
+                  className="btn-rejoindre"
+                  onClick={() => setShowProjetModal(true)}
+                >
+                  + Nouveau projet
+                </button>
+                <button className="btn-annuler" onClick={fermerGroupe}>
+                  ✕ Fermer
+                </button>
+              </div>
             </div>
 
             {projetsGroupe.length === 0 ? (
               <p className="empty-msg">Aucun projet dans ce groupe</p>
             ) : (
-              projetsGroupe.map((projet) => (
-                <div
-                  key={projet.id}
-                  className="projet-carte"
-                  onClick={() => setProjetActifGroupe(projet)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <p className="projet-nom">{projet.nom}</p>
-                  <p className="projet-description">{projet.description}</p>
-                </div>
-              ))
-            )}
-
-            {projetActifGroupe && (
-              <Kanban
-                projetId={projetActifGroupe.id}
-                projetNom={projetActifGroupe.nom}
-                groupeId={groupeActif.id}
-                onFermer={() => setProjetActifGroupe(null)}
-              />
+              <div className="projets-liste-groupe">
+                {projetsGroupe.map((projet) => (
+                  <div
+                    key={projet.id}
+                    className="projet-carte"
+                    onClick={() => setProjetActifGroupe(projet)}
+                  >
+                    <p className="projet-nom">{projet.nom}</p>
+                    <p className="projet-description">{projet.description}</p>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         )}
 
-        {/* MODAL CRÉER GROUPE */}
+        {/* KANBAN — plein écran avec bouton fermer */}
+        {projetActifGroupe && (
+          <div className="kanban-section">
+            <Kanban
+              projetId={projetActifGroupe.id}
+              projetNom={projetActifGroupe.nom}
+              groupeId={groupeActif.id}
+              onFermer={() => setProjetActifGroupe(null)}
+            />
+          </div>
+        )}
+
+        {/* MODAL CRÉER/REJOINDRE GROUPE */}
         {showModal && (
           <div className="modal-overlay" onClick={() => setShowModal(false)}>
             <div className="modal" onClick={(e) => e.stopPropagation()}>

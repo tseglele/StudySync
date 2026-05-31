@@ -8,13 +8,14 @@
 }
 
 .planner-container {
-  margin-left: 220px;
+  margin-left: 260px;
   flex: 1;
   display: flex;
   flex-direction: column;
   padding: 28px 32px;
   box-sizing: border-box;
-  width: calc(100% - 220px); /* force la largeur correcte */
+  width: calc(100% - 260px);
+  min-height: 100vh;
 }
 
 .title {
@@ -28,32 +29,113 @@
 .subtitle {
   font-size: 13px;
   color: #8b8a9e;
-  margin: 0 0 16px 0;
+  margin: 0 0 12px 0;
 }
 
+/* ===== LÉGENDE ===== */
+.planner-legende {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.legende-item {
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.legende-projet { background: rgba(124,106,247,0.2); color: #a78bfa; }
+.legende-urgent { background: rgba(239,68,68,0.15); color: #f87171; }
+.legende-moyen  { background: rgba(245,158,11,0.15); color: #fbbf24; }
+.legende-normal { background: rgba(34,197,94,0.15);  color: #4ade80; }
+
+/* ===== CALENDRIER ===== */
 .calendar-wrapper {
   width: 100%;
-  border-radius: 10px;
+  flex: 1;
+  border-radius: 12px;
   border: 1px solid #2a2a38;
-  overflow: auto; /* scroll possible si besoin */
+  overflow: hidden;
+  min-height: 720px;
+
+  /* SCHEDULE-X DARK THEME */
+  --sx-color-background:           #111116;
+  --sx-color-on-background:        #f0eff5;
+  --sx-color-surface:              #1c1c24;
+  --sx-color-surface-variant:      #22222e;
+  --sx-color-on-surface:           #e8e7f0;
+  --sx-color-on-surface-variant:   #8b8a9e;
+  --sx-color-outline:              #2e2e3e;
+  --sx-color-outline-variant:      #252535;
+  --sx-color-primary:              #7c6af7;
+  --sx-color-primary-container:    rgba(124, 106, 247, 0.18);
+  --sx-color-on-primary:           #ffffff;
+  --sx-color-on-primary-container: #f0eff5;
+  --sx-font-family: 'DM Sans', sans-serif;
 }
 
-/* ===== SCHEDULE-X VARIABLES ===== */
-.calendar-wrapper {
-  --sx-color-background:          #111116;
-  --sx-color-on-background:       #f0eff5;
-  --sx-color-surface:             #1c1c24;
-  --sx-color-surface-variant:     #22222e;
-  --sx-color-on-surface:          #e8e7f0;
-  --sx-color-on-surface-variant:  #8b8a9e;
+/* Taille du calendrier */
+.calendar-wrapper .sx-react-calendar-wrapper,
+.calendar-wrapper .sx__calendar {
+  min-height: 720px;
+  height: 100%;
+}
 
-  --sx-color-outline:             #2e2e3e;
-  --sx-color-outline-variant:     #252535;
+/* ===== EVENTS PLUS GRANDS ===== */
+.calendar-wrapper .sx__event {
+  font-size: 12.5px !important;
+  padding: 4px 9px !important;
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+  margin-bottom: 2px !important;
+  line-height: 1.4 !important;
+}
 
-  --sx-color-primary:             #7c6af7;
-  --sx-color-primary-container:   rgba(124, 106, 247, 0.18);
-  --sx-color-on-primary:          #ffffff;
-  --sx-color-on-primary-container:#f0eff5;
+/* Projets encore plus grands */
+.calendar-wrapper .sx__event[data-calendar-id="projet"] {
+  font-size: 13px !important;
+  padding: 5px 10px !important;
+  font-weight: 700 !important;
+  border-left: 3px solid #7c6af7 !important;
+}
 
-  --sx-font-family: 'DM Sans', sans-serif;
+/* Jours du mois */
+.calendar-wrapper .sx__month-grid-day {
+  min-height: 110px !important;
+}
+
+/* Numéros de jours */
+.calendar-wrapper .sx__month-grid-day__header-date {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Aujourd'hui */
+.calendar-wrapper .sx__is-today .sx__month-grid-day__header-date {
+  background: #7c6af7 !important;
+  color: white !important;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Header */
+.calendar-wrapper .sx__calendar-header {
+  border-bottom: 1px solid #2e2e3e;
+  padding: 10px 16px;
+}
+
+/* Noms des jours */
+.calendar-wrapper .sx__month-grid__day-name {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #8b8a9e;
 }

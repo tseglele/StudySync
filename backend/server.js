@@ -21,11 +21,11 @@ app.use(express.json())
 
 app.use('/auth', RouteConnexion)
 app.use('/auth', RouteInscription)
-app.use('/api/projets', RouteProjet)
+app.use('/api/projets', verifyToken, RouteProjet)
 app.use('/api/taches', RouteTache)
 app.use('/api/notifications', verifyToken, RouteNotifications)
 app.use('/api/profil', verifyToken, RouteProfil)
-app.use('/api/groupes', RouteGroupe)
+app.use('/api/groupes', verifyToken, RouteGroupe)
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {

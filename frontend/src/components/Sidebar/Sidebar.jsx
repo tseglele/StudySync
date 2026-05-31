@@ -1,11 +1,11 @@
-import "./sidebar.css"
-import { Link, useLocation } from "react-router-dom"
+import "./sidebar.css";
+import { Link, useLocation } from "react-router-dom";
 
 function Sidebar() {
-  const location = useLocation()
-  const user = JSON.parse(localStorage.getItem("user")) || { name: "Étudiant" }
+  const location = useLocation();
+  const user = JSON.parse(localStorage.getItem("user")) || { name: "Étudiant" };
 
-  const initiales = user.name ? user.name.slice(0, 2).toUpperCase() : "ET"
+  const initiales = user.name ? user.name.slice(0, 2).toUpperCase() : "ET";
 
   return (
     <div className="sidebar">
@@ -15,36 +15,30 @@ function Sidebar() {
         <span className="logo-text">StudySync</span>
       </div>
 
-      {/* RECHERCHE */}
-      <div className="sidebar-search">
-        <span>🔍</span>
-        <span className="search-placeholder">Rechercher...</span>
-      </div>
-
       {/* NAVIGATION */}
       <p className="sidebar-label">PRINCIPAL</p>
       <ul className="menu">
-        <li className={location.pathname === '/dashboard' ? 'active' : ''}>
+        <li className={location.pathname === "/dashboard" ? "active" : ""}>
           <Link to="/dashboard">🗂 Dashboard</Link>
         </li>
-        <li className={location.pathname === '/planner' ? 'active' : ''}>
+        <li className={location.pathname === "/planner" ? "active" : ""}>
           <Link to="/planner">📅 Planner</Link>
         </li>
-        <li className={location.pathname === '/projets' ? 'active' : ''}>
+        <li className={location.pathname === "/projets" ? "active" : ""}>
           <Link to="/projets">📁 Projets</Link>
         </li>
       </ul>
 
       <p className="sidebar-label">COLLABORATION</p>
       <ul className="menu">
-        <li className={location.pathname === '/groupes' ? 'active' : ''}>
+        <li className={location.pathname === "/groupes" ? "active" : ""}>
           <Link to="/groupes">👥 Groupes</Link>
         </li>
       </ul>
 
       <p className="sidebar-label">PERSONNEL</p>
       <ul className="menu">
-        <li className={location.pathname === '/profil' ? 'active' : ''}>
+        <li className={location.pathname === "/profil" ? "active" : ""}>
           <Link to="/profil">👤 Profil</Link>
         </li>
       </ul>
@@ -57,7 +51,7 @@ function Sidebar() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default Sidebar
+export default Sidebar;

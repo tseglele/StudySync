@@ -40,13 +40,20 @@ function Kanban({ projetId, projetNom, onFermer, onTacheUpdate, groupeId }) {
 
   const handleCreate = async () => {
     if (!form.titre) return;
+
     setLoading(true);
+
+    const user = JSON.parse(localStorage.getItem("user"));
+
     try {
       const res = await api.post(`/api/projets/${projetId}/taches`, {
-        ...form,
+        titre: form.titre,
+        deadline: form.deadline,
         statut: "todo",
-        projetId: projetId,
+        projetId,
+        userId: user.id,
       });
+
       setTaches((prev) => [...prev, res.data]);
       setShowModal(false);
       setForm({ titre: "", assignee: "", deadline: "" });
@@ -56,7 +63,6 @@ function Kanban({ projetId, projetNom, onFermer, onTacheUpdate, groupeId }) {
       setLoading(false);
     }
   };
-
   const handleStatut = async (tacheId, nouveauStatut) => {
     try {
       await api.patch(`/api/taches/${tacheId}/statut`, {
