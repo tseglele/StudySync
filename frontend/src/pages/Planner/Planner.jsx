@@ -8,10 +8,10 @@ import {
   createViewMonthGrid,
   createViewMonthAgenda,
 } from "@schedule-x/calendar";
+import "./planner.css";
 import "@schedule-x/theme-default/dist/index.css";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import Api from "../../Api";
-import "./planner.css";
 
 function Planner() {
   const { taches, projets, refresh } = useTaches();
