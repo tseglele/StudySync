@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import api from '../../Api.jsx'
 import Kanban from '../../components/Kanban/Kanban'
-import Sidebar from "../../components/Sidebar/Sidebar"
+import Sidebar from "../../components/Sidebar/Sidebar";
 import './projets.css'
 
 function Projets() {
@@ -74,12 +74,17 @@ function Projets() {
       setLoading(false)
     }
   }
-return (
-    <div className="layout">
+
+  return (
+      <div className="page"> 
       <Sidebar />
-      <div className="page">
-        <h1 className="page-title">Mes Projets</h1>
-        <p className="page-sub">Suivi de tes projets de groupe</p>
+      <h1 className="page-title">
+        Mes Projets
+      </h1>
+
+      <p className="page-sub">
+        Suivi de tes projets de groupe
+      </p>
 
         <div className="page-meta">
           <span>{projets.length} projets actifs</span>
@@ -176,7 +181,6 @@ return (
           </div>
         )}
       </div>
-    </div>
   )
 }
 

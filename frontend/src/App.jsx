@@ -10,14 +10,17 @@ import Groupes from './pages/Groupes/Groupes.jsx'
 
 function App() {
   return (
-    <Routes>
-      <Route path="/register" element={<Inscription />} />
+   
+      <Routes>
+
+      <Route path="/register" element={<Inscription/>} />
       <Route path="/login" element={<Connexion />} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/projets" element={<Projets />} />
       <Route path="/planner" element={<Planner />} />
       <Route path="/profil" element={<Profil />} />
       <Route path="/groupes" element={<Groupes />} />
+
     </Routes>
   )
 }
