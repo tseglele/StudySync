@@ -122,4 +122,68 @@ const updateStatutTache = async (req, res) => {
   }
 }
 
-export default { getTachesByProjet, createTache, updateStatutTache }
+const avecScore = (tache) => ({
+  ...tache,
+  score: calculerScore(tache),
+  niveauPriorite: getNiveauPriorite(calculerScore(tache))
+})
+// ────────────────────────────────────────────────────────────────────────────
+const updateTache = async (req, res) => {
+  try {
+    const { id } = req.params
+    const { titre, assignee, deadline, priorite } = req.body
+
+    const existing = await pool.query('SELECT * FROM "Task" WHERE id = $1', [parseInt(id)])
+    if (existing.rows.length === 0) {
+      return res.status(404).json({ error: "Tâche introuvable" })
+    }
+    const ancienne = existing.rows[0]
+    const projectId = ancienne.projectId ?? ancienne.projectid
+
+    if (deadline && projectId) {
+      const projetResult = await pool.query('SELECT * FROM "Project" WHERE id = $1', [projectId])
+      const projet = projetResult.rows[0]
+      const dateLimite = projet?.dateLimite ?? projet?.datelimite
+      if (dateLimite && new Date(deadline) > new Date(dateLimite)) {
+        return res.status(400).json({ message: "La deadline dépasse la date limite du projet" })
+      }
+    }
+
+    const result = await pool.query(
+      `UPDATE "Task"
+       SET
+         titre    = COALESCE($1, titre),
+         assignee = COALESCE($2, assignee),
+         deadline = COALESCE($3, deadline),
+         priorite = COALESCE($4, priorite)
+       WHERE id = $5
+       RETURNING *`,
+      [titre ?? null, assignee ?? null, deadline ?? null, priorite ?? null, parseInt(id)]
+    )
+
+    res.json(avecScore(result.rows[0]))
+  } catch (error) {
+    console.error('updateTache error:', error.message)
+    res.status(500).json({ error: error.message })
+  }
+}
+
+const deleteTache = async (req, res) => {
+  try {
+    const { id } = req.params
+    const result = await pool.query(
+      'DELETE FROM "Task" WHERE id = $1 RETURNING *',
+      [parseInt(id)]
+    )
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Tâche introuvable" })
+    }
+    res.json({ success: true, deleted: result.rows[0] })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: "Erreur serveur" })
+  }
+}
+
+
+export default { getTachesByProjet, createTache, updateStatutTache, updateTache, deleteTache }

@@ -22,14 +22,22 @@ function Kanban({ projetId, projetNom, onFermer, onTacheUpdate, groupeId }) {
   const [form, setForm] = useState({ titre: "", assignee: "", deadline: "" });
   const [loading, setLoading] = useState(false);
 
+  // ── NOUVEAU : état pour l'édition ──────────────────────────────────────
+  const [tacheAEditer, setTacheAEditer] = useState(null);
+  const [formEdit, setFormEdit] = useState({
+    titre: "",
+    assignee: "",
+    deadline: "",
+    priorite: "",
+  });
+  // ───────────────────────────────────────────────────────────────────────
+
   useEffect(() => {
     if (!projetId) return;
-
     api
       .get(`/api/projets/${projetId}/taches`)
       .then((res) => setTaches(res.data))
       .catch((err) => console.error(err));
-
     if (groupeId) {
       api
         .get(`/api/groupes/${groupeId}/membres`)
@@ -40,11 +48,8 @@ function Kanban({ projetId, projetNom, onFermer, onTacheUpdate, groupeId }) {
 
   const handleCreate = async () => {
     if (!form.titre) return;
-
     setLoading(true);
-
     const user = JSON.parse(localStorage.getItem("user"));
-
     try {
       const res = await api.post(`/api/projets/${projetId}/taches`, {
         titre: form.titre,
@@ -53,7 +58,6 @@ function Kanban({ projetId, projetNom, onFermer, onTacheUpdate, groupeId }) {
         projetId,
         userId: user.id,
       });
-
       setTaches((prev) => [...prev, res.data]);
       setShowModal(false);
       setForm({ titre: "", assignee: "", deadline: "" });
@@ -63,6 +67,7 @@ function Kanban({ projetId, projetNom, onFermer, onTacheUpdate, groupeId }) {
       setLoading(false);
     }
   };
+
   const handleStatut = async (tacheId, nouveauStatut) => {
     try {
       await api.patch(`/api/taches/${tacheId}/statut`, {
@@ -78,6 +83,45 @@ function Kanban({ projetId, projetNom, onFermer, onTacheUpdate, groupeId }) {
       console.error(err);
     }
   };
+
+  // ── NOUVEAU : ouvrir le modal d'édition pré-rempli ──────────────────────
+  const ouvrirEdition = (tache) => {
+    setTacheAEditer(tache);
+    setFormEdit({
+      titre: tache.titre || "",
+      assignee: tache.assignee || "",
+      deadline: tache.deadline ? tache.deadline.slice(0, 10) : "",
+      priorite: tache.priorite || "",
+    });
+  };
+
+  // ── NOUVEAU : envoyer la modification ───────────────────────────────────
+  const handleUpdate = async () => {
+    if (!formEdit.titre) return;
+    try {
+      const res = await api.patch(`/api/taches/${tacheAEditer.id}`, formEdit);
+      setTaches((prev) =>
+        prev.map((t) => (t.id === tacheAEditer.id ? res.data : t)),
+      );
+      setTacheAEditer(null);
+      if (onTacheUpdate) onTacheUpdate();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // ── NOUVEAU : supprimer une tâche ───────────────────────────────────────
+  const handleDelete = async (tacheId) => {
+    if (!confirm("Supprimer cette tâche ?")) return;
+    try {
+      await api.delete(`/api/taches/${tacheId}`);
+      setTaches((prev) => prev.filter((t) => t.id !== tacheId));
+      if (onTacheUpdate) onTacheUpdate();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  // ───────────────────────────────────────────────────────────────────────
 
   return (
     <div className="kanban-page">
@@ -154,6 +198,9 @@ function Kanban({ projetId, projetNom, onFermer, onTacheUpdate, groupeId }) {
                           →
                         </button>
                       )}
+                      {/* ── NOUVEAU ── */}
+                      <button onClick={() => ouvrirEdition(tache)}>✏️</button>
+                      <button onClick={() => handleDelete(tache.id)}>🗑️</button>
                     </div>
                   </div>
                 ))}
@@ -162,6 +209,7 @@ function Kanban({ projetId, projetNom, onFermer, onTacheUpdate, groupeId }) {
         ))}
       </div>
 
+      {/* MODAL CRÉATION — inchangé */}
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -219,6 +267,79 @@ function Kanban({ projetId, projetNom, onFermer, onTacheUpdate, groupeId }) {
           </div>
         </div>
       )}
+
+      {/* ── NOUVEAU : MODAL ÉDITION ─────────────────────────────────────── */}
+      {tacheAEditer && (
+        <div className="modal-overlay" onClick={() => setTacheAEditer(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h2 className="modal-title">Modifier la tâche</h2>
+            <div className="modal-field">
+              <label>Titre *</label>
+              <input
+                type="text"
+                value={formEdit.titre}
+                onChange={(e) =>
+                  setFormEdit({ ...formEdit, titre: e.target.value })
+                }
+              />
+            </div>
+            {membres.length > 0 && (
+              <div className="modal-field">
+                <label>Assigné à</label>
+                <select
+                  value={formEdit.assignee}
+                  onChange={(e) =>
+                    setFormEdit({ ...formEdit, assignee: e.target.value })
+                  }
+                >
+                  <option value="">Choisir un membre</option>
+                  {membres.map((m) => (
+                    <option key={m.id} value={m.name}>
+                      {m.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            <div className="modal-field">
+              <label>Date limite</label>
+              <input
+                type="date"
+                value={formEdit.deadline}
+                onChange={(e) =>
+                  setFormEdit({ ...formEdit, deadline: e.target.value })
+                }
+              />
+            </div>
+            <div className="modal-field">
+              <label>Priorité</label>
+              <select
+                value={formEdit.priorite}
+                onChange={(e) =>
+                  setFormEdit({ ...formEdit, priorite: e.target.value })
+                }
+              >
+                <option value="">-- Choisir --</option>
+                <option value="Haute">Haute</option>
+                <option value="Moyenne">Moyenne</option>
+                <option value="Basse">Basse</option>
+              </select>
+            </div>
+            <div className="modal-actions">
+              <button
+                className="btn-annuler"
+                onClick={() => setTacheAEditer(null)}
+              >
+                Annuler
+              </button>
+              <button className="btn-rejoindre" onClick={handleUpdate}>
+                Enregistrer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* ─────────────────────────────────────────────────────────────────── */}
     </div>
   );
 }
