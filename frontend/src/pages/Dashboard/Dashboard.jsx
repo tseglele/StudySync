@@ -17,45 +17,26 @@ function Dashboard() {
   const [projets, setProjets] = useState([]);
   const [tachesPrioritaires, setTachesPrioritaires] = useState([]);
 
-  const getPriority = (task) => {
+  function getPriority(task) {
     let score = 0;
-
     const today = new Date();
+    const dueDate = new Date(task.deadline);
+    const diffTime = dueDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    // deadline
-    if (task.deadline) {
-      const dueDate = new Date(task.deadline);
+    if (diffDays <= 2) score += 3;
+    else if (diffDays <= 7) score += 2;
 
-      const diffTime = dueDate - today;
+    if (task.type === "Projet") score += 2;
+    else if (task.type === "Présentation") score += 1;
 
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    if (task.groupWork) score += 1;
 
-      if (diffDays <= 2) {
-        score += 3;
-      } else if (diffDays <= 7) {
-        score += 2;
-      }
-    }
+    if (score >= 5) return "Urgent";
+    if (score >= 3) return "Moyen";
+    return "Normal";
+  }
 
-    // priorité manuelle choisie
-    if (task.priorite === "Haute") {
-      score += 3;
-    } else if (task.priorite === "Moyenne") {
-      score += 2;
-    } else {
-      score += 1;
-    }
-
-    if (score >= 5) {
-      return "Haute";
-    }
-
-    if (score >= 3) {
-      return "Moyenne";
-    }
-
-    return "Basse";
-  };
   useEffect(() => {
     api
       .get("/api/projets")
@@ -75,7 +56,11 @@ function Dashboard() {
             ).length;
             toutesLesTaches = [
               ...toutesLesTaches,
-              ...taches.map((t) => ({ ...t, projetNom: projet.nom })),
+              ...taches.map((t) => ({
+                ...t,
+                projetNom: projet.nom,
+                isGroupe: !!projet.groupeId,
+              })),
             ];
             const total = taches.length;
             const terminees = taches.filter((t) => t.statut === "done").length;
@@ -84,21 +69,17 @@ function Dashboard() {
             return { ...projet, avancement };
           }),
         );
+
         setProjets(projetsAvecAvancement);
 
-        const ordrePriorite = {
-          Haute: 3,
-          Moyenne: 2,
-          Basse: 1,
-        };
+        const ordrePriorite = { Urgent: 3, Moyen: 2, Normal: 1 };
 
         const tachesTriees = toutesLesTaches
           .filter((t) => t.statut !== "done")
-          .sort((a, b) => {
-            return (
-              ordrePriorite[getPriority(b)] - ordrePriorite[getPriority(a)]
-            );
-          })
+          .sort(
+            (a, b) =>
+              ordrePriorite[getPriority(b)] - ordrePriorite[getPriority(a)],
+          )
           .slice(0, 4);
 
         setTachesPrioritaires(tachesTriees);
@@ -106,34 +87,30 @@ function Dashboard() {
           tachesEnCours,
           tachesCompletees,
           echeancesProches: toutesLesTaches.filter(
-            (t) => t.priorite === "Haute" && t.statut !== "done",
+            (t) => getPriority(t) === "Urgent" && t.statut !== "done",
           ).length,
           projetsActifs: projetsData.length,
         });
       })
       .catch((err) => console.error(err));
   }, []);
+
   const terminerTache = async (id) => {
     try {
-      await api.patch(`/api/taches/${id}/statut`, {
-        statut: "done",
-      });
-
+      await api.patch(`/api/taches/${id}/statut`, { statut: "done" });
       setTachesPrioritaires((prev) => prev.filter((t) => t.id !== id));
-
       window.dispatchEvent(new Event("refreshTasks"));
     } catch (err) {
       console.error(err);
     }
   };
+
   return (
     <div className="layout">
       <Sidebar />
       <div className="dashboard">
-        {/* TOPBAR */}
         <Topbar />
 
-        {/* HEADER */}
         <div className="dashboard-header">
           <h1>Bonjour, {user.name}</h1>
           <p className="dashboard-date">
@@ -145,7 +122,6 @@ function Dashboard() {
           </p>
         </div>
 
-        {/* STATS */}
         <div className="stats-grid">
           <div className="stat-card stat-blue">
             <span className="stat-icon">📋</span>
@@ -169,9 +145,7 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* CONTENU PRINCIPAL */}
         <div className="dashboard-main">
-          {/* TÂCHES PRIORITAIRES */}
           <div className="dashboard-section taches-section">
             <h3 className="section-title">TÂCHES PRIORITAIRES</h3>
             {tachesPrioritaires.length === 0 ? (
@@ -186,15 +160,19 @@ function Dashboard() {
                   <div className="tache-info">
                     <p className="tache-titre">{tache.titre}</p>
                     <div className="tache-meta">
-                      <span className="tache-projet">📁 {tache.projetNom}</span>
+                      <span className="tache-projet">
+                        {tache.isGroupe ? "👥" : "📁"} {tache.projetNom}
+                      </span>
                       <span
-                        className={`tache-priorite ${tache.priorite === "Haute" ? "urgent" : tache.priorite === "Moyenne" ? "moyen" : "bas"}`}
+                        className={`tache-priorite ${
+                          getPriority(tache) === "Urgent"
+                            ? "urgent"
+                            : getPriority(tache) === "Moyen"
+                              ? "moyen"
+                              : "bas"
+                        }`}
                       >
-                        {tache.priorite === "Haute"
-                          ? "Urgent"
-                          : tache.priorite === "Moyenne"
-                            ? "Moyen"
-                            : "Bas"}
+                        {getPriority(tache)}
                       </span>
                     </div>
                   </div>
@@ -203,12 +181,14 @@ function Dashboard() {
             )}
           </div>
 
-          {/* PROJETS ACTIFS */}
           <div className="dashboard-section projets-section">
             <h3 className="section-title">Projets actifs</h3>
             {projets.slice(0, 2).map((projet) => (
               <div key={projet.id} className="projet-card">
-                <p className="projet-nom">{projet.nom}</p>
+                <p className="projet-nom">
+                  {projet.groupeId ? "👥 " : "📁 "}
+                  {projet.nom}
+                </p>
                 <p className="projet-desc">{projet.description}</p>
                 <div className="progression">
                   <div className="progression-header">
@@ -226,7 +206,6 @@ function Dashboard() {
             ))}
           </div>
 
-          {/* PROGRESSION */}
           <div className="dashboard-section">
             <div className="progression-header-title">
               <h3 className="section-title">PROGRESSION</h3>
@@ -253,7 +232,15 @@ function Dashboard() {
                 <div
                   className="barre-remplie barre-purple"
                   style={{
-                    width: `${stats.tachesCompletees + stats.tachesEnCours > 0 ? Math.round((stats.tachesCompletees / (stats.tachesCompletees + stats.tachesEnCours)) * 100) : 0}%`,
+                    width: `${
+                      stats.tachesCompletees + stats.tachesEnCours > 0
+                        ? Math.round(
+                            (stats.tachesCompletees /
+                              (stats.tachesCompletees + stats.tachesEnCours)) *
+                              100,
+                          )
+                        : 0
+                    }%`,
                   }}
                 />
               </div>
@@ -272,7 +259,6 @@ function Dashboard() {
             </div>
           </div>
 
-          {/* ÉCHÉANCES */}
           <div className="dashboard-section">
             <h3 className="section-title">Échéances</h3>
             {projets.length === 0 ? (
@@ -295,7 +281,10 @@ function Dashboard() {
                     </span>
                   </div>
                   <div className="echeance-info">
-                    <p className="echeance-nom">{projet.nom}</p>
+                    <p className="echeance-nom">
+                      {projet.groupeId ? "👥 " : ""}
+                      {projet.nom}
+                    </p>
                     <p className="echeance-desc">{projet.description}</p>
                   </div>
                 </div>

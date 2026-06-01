@@ -6,6 +6,8 @@ const router = express.Router()
 
 router.get('/', ControllerProjet.getAllProjets)
 router.post('/', ControllerProjet.createProjet)
+router.put('/:id', ControllerProjet.updateProjet)
+router.delete('/:id', ControllerProjet.deleteProjet)
 router.get('/:id/taches', ControllerTache.getTachesByProjet)
 router.post('/:id/taches', ControllerTache.createTache)
 

@@ -139,3 +139,157 @@
   letter-spacing: 0.6px;
   color: #8b8a9e;
 }
+
+.planner-legende {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.legende-item {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.legende-projet  { background: rgba(124,106,247,0.15); color: #7c6af7; border: 1px solid rgba(124,106,247,0.3); }
+.legende-urgent  { background: rgba(239,68,68,0.15);   color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+.legende-moyen   { background: rgba(245,158,11,0.15);  color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+.legende-normal  { background: rgba(34,197,94,0.15);   color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+
+/* Noms des jours (Lun, Mar...) */
+.calendar-wrapper .sx__month-grid__day-name {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #c4c3d4 !important;  /* était #8b8a9e */
+}
+
+/* Numéros des jours */
+.calendar-wrapper .sx__month-grid-day__header-date {
+  font-size: 13px;
+  font-weight: 500;
+  color: #e8e7f0 !important;
+}
+
+/* Jours du mois autre mois (grisés) */
+.calendar-wrapper .sx__month-grid-day--outside-month .sx__month-grid-day__header-date {
+  color: #4e4d61 !important;
+}
+
+/* Texte dans les cellules */
+.calendar-wrapper .sx__month-grid-day {
+  min-height: 110px !important;
+  color: #e8e7f0 !important;
+}
+
+/* Variables globales du thème — renforcer le contraste */
+.calendar-wrapper {
+  --sx-color-on-background:       #f0eff5;
+  --sx-color-on-surface:          #e8e7f0;
+  --sx-color-on-surface-variant:  #c4c3d4;  /* était #8b8a9e */
+  --sx-color-surface:             #16161e;  /* légèrement plus clair */
+  --sx-color-outline:             #3a3a4e;  /* était #2e2e3e */
+}
+/* Boutons navigation (< >) */
+.calendar-wrapper .sx__chevron-wrapper,
+.calendar-wrapper button {
+  color: #e8e7f0 !important;
+}
+/* Titre du mois/année */
+.calendar-wrapper .sx__calendar-header__title {
+  color: #f0eff5 !important;
+  font-weight: 600 !important;
+  font-size: 15px !important;
+}
+
+/* Tous les boutons du header */
+.calendar-wrapper .sx__calendar-header button,
+.calendar-wrapper .sx__calendar-header span {
+  color: #f0eff5 !important;
+}
+
+/* Flèches prev/next — cibler plus large */
+.calendar-wrapper button[aria-label],
+.calendar-wrapper .sx__calendar-header nav button,
+.calendar-wrapper .sx__forward-backward-navigation button {
+  color: #ffff !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+  border-radius: 8px !important;
+  border: 1px solid #3a3a4e !important;
+  padding: 4px 10px !important;
+}
+/* ===== TEXTE PLUS CLAIR ===== */
+
+/* Sous-titre */
+.subtitle {
+  color: #b8b7c9;
+}
+
+/* Noms des jours (LUN, MAR...) */
+.calendar-wrapper .sx__month-grid__day-name {
+  color: #d8d7e5 !important;
+  font-weight: 700 !important;
+}
+
+/* Numéros des jours */
+.calendar-wrapper .sx__month-grid-day__header-date {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+/* Jours hors mois */
+.calendar-wrapper .sx__month-grid-day--outside-month
+  .sx__month-grid-day__header-date {
+  color: #77768b !important;
+}
+
+/* Texte général du calendrier */
+.calendar-wrapper {
+  --sx-color-on-background: #ffffff;
+  --sx-color-on-surface: #f4f4f8;
+  --sx-color-on-surface-variant: #d0cfdf;
+}
+
+/* ===== BOUTONS PLUS VISIBLES ===== */
+
+/* Boutons header (navigation + vues) */
+.calendar-wrapper .sx__calendar-header button {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid #4b4b66 !important;
+  border-radius: 10px !important;
+}
+
+/* Hover */
+.calendar-wrapper .sx__calendar-header button:hover {
+  background: rgba(124, 106, 247, 0.22) !important;
+  border-color: #8f7cff !important;
+}
+
+/* SVG des flèches */
+.calendar-wrapper .sx__calendar-header button svg,
+.calendar-wrapper .sx__calendar-header button svg path {
+  stroke: #ffffff !important;
+}
+
+/* Titre mois/année */
+.calendar-wrapper .sx__calendar-header__title {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+/* Boutons Mois / Semaine / Jour */
+.calendar-wrapper .sx__view-selection-item {
+  color: #d9d8e8 !important;
+  border: 1px solid #4b4b66 !important;
+}
+
+.calendar-wrapper .sx__view-selection-item--selected {
+  color: #ffffff !important;
+  background: rgba(124, 106, 247, 0.28) !important;
+  border-color: #7c6af7 !important;
+}

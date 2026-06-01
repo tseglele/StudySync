@@ -9,6 +9,7 @@ function Projets() {
   const [projets, setProjets] = useState([]);
   const [projetActif, setProjetActif] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [projetEnEdition, setProjetEnEdition] = useState(null);
   const [form, setForm] = useState({
     nom: "",
     description: "",
@@ -17,48 +18,40 @@ function Projets() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    api
-      .get("/api/projets")
-      .then(async (res) => {
-        const projetsData = res.data?.projets || res.data?.data || res.data;
-
-        const projets = Array.isArray(projetsData) ? projetsData : [];
-
-        const projetsAvecAvancement = await Promise.all(
-          projets.map(async (projet) => {
-            try {
-              const tachesRes = await api.get(
-                `/api/projets/${projet.id}/taches`,
-              );
-              const taches = tachesRes.data;
-              const total = taches.length;
-              const terminees = taches.filter(
-                (t) => t.statut === "done",
-              ).length;
-              const start = new Date(projet.createdAt);
-              const end = new Date(projet.dateLimite);
-
-              const dureeJours = projet.dateLimite
-                ? Math.ceil((end - start) / (1000 * 60 * 60 * 24))
-                : null;
-              const avancement =
-                total > 0 ? Math.round((terminees / total) * 100) : 0;
-              return { ...projet, avancement };
-            } catch {
-              return { ...projet, avancement: 0 };
-            }
-          }),
-        );
-
-        setProjets(projetsAvecAvancement);
-      })
-      .catch((err) => console.error(err));
+    chargerProjets();
   }, []);
+
+  const chargerProjets = async () => {
+    try {
+      const res = await api.get("/api/projets");
+      const projetsData = res.data?.projets || res.data?.data || res.data;
+      const liste = Array.isArray(projetsData) ? projetsData : [];
+
+      const projetsAvecAvancement = await Promise.all(
+        liste.map(async (projet) => {
+          try {
+            const tachesRes = await api.get(`/api/projets/${projet.id}/taches`);
+            const taches = Array.isArray(tachesRes.data) ? tachesRes.data : [];
+            const total = taches.length;
+            const terminees = taches.filter((t) => t.statut === "done").length;
+            const avancement =
+              total > 0 ? Math.round((terminees / total) * 100) : 0;
+            return { ...projet, avancement };
+          } catch {
+            return { ...projet, avancement: 0 };
+          }
+        }),
+      );
+      setProjets(projetsAvecAvancement);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const refreshAvancement = async (projetId) => {
     try {
       const tachesRes = await api.get(`/api/projets/${projetId}/taches`);
-      const taches = tachesRes.data;
+      const taches = Array.isArray(tachesRes.data) ? tachesRes.data : [];
       const total = taches.length;
       const terminees = taches.filter((t) => t.statut === "done").length;
       const avancement = total > 0 ? Math.round((terminees / total) * 100) : 0;
@@ -70,18 +63,61 @@ function Projets() {
     }
   };
 
-  const handleCreate = async () => {
+  const ouvrirCreation = () => {
+    setProjetEnEdition(null);
+    setForm({ nom: "", description: "", dateLimite: "" });
+    setShowModal(true);
+  };
+
+  const ouvrirEdition = (e, projet) => {
+    e.stopPropagation();
+    setProjetEnEdition(projet);
+    setForm({
+      nom: projet.nom,
+      description: projet.description || "",
+      dateLimite: projet.dateLimite
+        ? new Date(projet.dateLimite).toISOString().slice(0, 10)
+        : "",
+    });
+    setShowModal(true);
+  };
+
+  const handleSubmit = async () => {
     if (!form.nom) return;
     setLoading(true);
     try {
-      const res = await api.post("/api/projets", form);
-      setProjets((prev) => [...prev, { ...res.data, avancement: 0 }]);
+      if (projetEnEdition) {
+        const res = await api.put(`/api/projets/${projetEnEdition.id}`, form);
+        setProjets((prev) =>
+          prev.map((p) =>
+            p.id === projetEnEdition.id
+              ? { ...res.data, avancement: p.avancement }
+              : p,
+          ),
+        );
+      } else {
+        const res = await api.post("/api/projets", form);
+        setProjets((prev) => [...prev, { ...res.data, avancement: 0 }]);
+      }
       setShowModal(false);
       setForm({ nom: "", description: "", dateLimite: "" });
+      setProjetEnEdition(null);
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (e, projetId) => {
+    e.stopPropagation();
+    if (!confirm("Supprimer ce projet et toutes ses tâches ?")) return;
+    try {
+      await api.delete(`/api/projets/${projetId}`);
+      setProjets((prev) => prev.filter((p) => p.id !== projetId));
+      if (projetActif?.id === projetId) setProjetActif(null);
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -90,18 +126,17 @@ function Projets() {
       <Topbar />
       <Sidebar />
       <h1 className="page-title">Mes Projets</h1>
-
-      <p className="page-sub">Suivi de tes projets de groupe</p>
+      <p className="page-sub">Suivi de tes projets</p>
 
       <div className="page-meta">
         <span>{projets.length} projets actifs</span>
-        <button className="btn-rejoindre" onClick={() => setShowModal(true)}>
+        <button className="btn-rejoindre" onClick={ouvrirCreation}>
           + Nouveau projet
         </button>
       </div>
 
       <div className="projets-liste">
-        {projets?.map?.((projet) => (
+        {projets.map((projet) => (
           <div
             key={projet.id}
             className="projet-carte"
@@ -109,12 +144,35 @@ function Projets() {
             style={{ cursor: "pointer" }}
           >
             <div className="projet-header">
-              <div>
-                <p className="projet-nom">{projet.nom}</p>
+              <p className="projet-nom">{projet.nom}</p>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              >
+                <span className="projet-date">
+                  📅{" "}
+                  {projet.dateLimite
+                    ? new Date(projet.dateLimite).toLocaleDateString("fr-FR")
+                    : "—"}
+                </span>
+                <button
+                  className="btn-edit"
+                  onClick={(e) => ouvrirEdition(e, projet)}
+                  title="Modifier"
+                >
+                  ✏️
+                </button>
+                <button
+                  className="btn-delete"
+                  onClick={(e) => handleDelete(e, projet.id)}
+                  title="Supprimer"
+                >
+                  ❌
+                </button>
               </div>
-              <span className="projet-date">📅 {projet.dateLimite}</span>
             </div>
+
             <p className="projet-description">{projet.description}</p>
+
             <div className="progression">
               <div className="progression-header">
                 <span>Avancement</span>
@@ -152,7 +210,9 @@ function Projets() {
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h2 className="modal-title">Nouveau projet</h2>
+            <h2 className="modal-title">
+              {projetEnEdition ? "Modifier le projet" : "Nouveau projet"}
+            </h2>
             <div className="modal-field">
               <label>Nom du projet *</label>
               <input
@@ -191,10 +251,10 @@ function Projets() {
               </button>
               <button
                 className="btn-rejoindre"
-                onClick={handleCreate}
+                onClick={handleSubmit}
                 disabled={loading}
               >
-                {loading ? "Création..." : "Créer"}
+                {loading ? "..." : projetEnEdition ? "Enregistrer" : "Créer"}
               </button>
             </div>
           </div>

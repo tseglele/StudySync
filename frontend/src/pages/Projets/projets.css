@@ -270,3 +270,16 @@
   flex: 1;
   padding: 40px;
 }
+
+.btn-edit, .btn-delete {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  padding: 4px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.btn-edit:hover  { background: rgba(124, 92, 252, 0.15); }
+.btn-delete:hover { background: rgba(240, 80, 110, 0.15); }

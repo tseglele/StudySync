@@ -14,6 +14,7 @@ import Topbar from "../../components/Topbar/Topbar";
 
 function CalendarView({ events }) {
   const calendar = useCalendarApp({
+    locale: "fr-FR",
     views: [
       createViewMonthGrid(),
       createViewWeek(),
@@ -22,8 +23,16 @@ function CalendarView({ events }) {
       createViewDay(),
     ],
     defaultView: "month-grid",
-    events: events,
+    events,
     calendars: {
+      projet_duree: {
+        colorName: "projet_duree",
+        lightColors: {
+          main: "#7c6af7",
+          container: "#ede9fe",
+          onContainer: "#2e1065",
+        },
+      },
       urgent: {
         colorName: "urgent",
         lightColors: {
@@ -48,87 +57,67 @@ function CalendarView({ events }) {
           onContainer: "#14532d",
         },
       },
-      projet: {
-        colorName: "projet",
-        lightColors: {
-          main: "#7c6af7",
-          container: "#c4b5fd",
-          onContainer: "#2e1065",
-        },
-      },
     },
   });
 
   return <ScheduleXCalendar calendarApp={calendar} />;
 }
 
+function toPlainDate(raw) {
+  if (!raw) return null;
+  try {
+    const str = typeof raw === "string" ? raw : new Date(raw).toISOString();
+    return Temporal.PlainDate.from(str.slice(0, 10));
+  } catch {
+    return null;
+  }
+}
+
 function Planner() {
   const { taches, projets, loading } = useTaches();
 
-  // Events des PROJETS — plus grands, violet
-  const eventsProjet = projets
-    .filter((p) => p.dateLimite)
-    .map((projet) => {
-      const dateStr =
-        typeof projet.dateLimite === "string"
-          ? projet.dateLimite.slice(0, 10)
-          : new Date(projet.dateLimite).toISOString().slice(0, 10);
+  const eventsProjet = projets.flatMap((projet) => {
+    const debut = toPlainDate(projet.createdAt);
+    const fin = toPlainDate(projet.dateLimite);
+    if (!debut || !fin) return [];
+    // Temporal.PlainDate.compare : 0 ou positif = pas de durée
+    if (Temporal.PlainDate.compare(debut, fin) >= 0) return [];
 
-      let plainDate;
-      try {
-        plainDate = Temporal.PlainDate.from(dateStr);
-      } catch {
-        return null;
-      }
-
-      return {
+    return [
+      {
         id: `projet-${projet.id}`,
         title: `📁 ${projet.nom}`,
-        start: plainDate,
-        end: plainDate,
-        calendarId: "projet",
-      };
-    })
-    .filter(Boolean);
+        start: debut,
+        end: fin,
+        calendarId: "projet_duree",
+      },
+    ];
+  });
 
-  // Events des TÂCHES — colorées par priorité
   const eventsTache = taches
-    .filter((tache) => !tache.status || tache.status !== "done")
-    .map((tache) => {
+    .filter((t) => t.statut !== "done")
+    .flatMap((tache) => {
       const projet = projets.find((p) => p.id === tache.projetId);
-      const dateRaw = tache.deadline || projet?.dateLimite;
+      const date =
+        toPlainDate(tache.deadline) ?? toPlainDate(projet?.dateLimite);
+      if (!date) return [];
 
-      if (!dateRaw) return null;
-
-      const dateStr =
-        typeof dateRaw === "string"
-          ? dateRaw.slice(0, 10)
-          : new Date(dateRaw).toISOString().slice(0, 10);
-
-      let plainDate;
-      try {
-        plainDate = Temporal.PlainDate.from(dateStr);
-      } catch {
-        return null;
-      }
-
-      return {
-        id: `tache-${tache.id}`,
-        title: `✓ ${tache.titre}`,
-        start: plainDate,
-        end: plainDate,
-        calendarId:
-          tache.priorite === "Haute"
-            ? "urgent"
-            : tache.priorite === "Moyenne"
-              ? "moyen"
-              : "normal",
-      };
-    })
-    .filter(Boolean);
-
+      return [
+        {
+          id: `tache-${tache.id}`,
+          title: `✓ ${tache.titre}`,
+          start: date,
+          end: date,
+          calendarId:
+            tache.priorite === "Haute"
+              ? "urgent"
+              : tache.priorite === "Moyenne"
+                ? "moyen"
+                : "normal",
+        },
+      ];
+    });
   const events = [...eventsProjet, ...eventsTache];
-
   return (
     <div className="layout">
       <Topbar />
@@ -137,9 +126,8 @@ function Planner() {
         <h1 className="title">Planner</h1>
         <p className="subtitle">Planifie et visualise ton emploi du temps</p>
 
-        {/* Légende */}
         <div className="planner-legende">
-          <span className="legende-item legende-projet">📁 Projet</span>
+          <span className="legende-item legende-projet">📁 Durée projet</span>
           <span className="legende-item legende-urgent">🔴 Urgent</span>
           <span className="legende-item legende-moyen">🟡 Moyen</span>
           <span className="legende-item legende-normal">🟢 Normal</span>
